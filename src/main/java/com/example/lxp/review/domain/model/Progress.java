@@ -5,10 +5,12 @@ import com.example.lxp.exception.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
+import java.util.Objects;
+
 @Embeddable
 public class Progress {
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer progress;
 
     // JPA REQUIRED
@@ -24,4 +26,16 @@ public class Progress {
         }
         return new Progress(progress);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Progress p)) return false;
+        return Objects.equals(this.progress, p.progress);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(progress);
+    }
+
 }

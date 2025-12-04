@@ -1,8 +1,11 @@
 package com.example.lxp.review.domain.model;
 
+import com.example.lxp.exception.BusinessException;
+import com.example.lxp.exception.ErrorCode;
 import jakarta.persistence.*;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
+import java.util.Objects;
 
 @Entity
 public class Review {
@@ -29,20 +32,19 @@ public class Review {
     private String comment;
 
     @Embedded
-    @Column(nullable = false)
     private Rating rating;
 
     @Embedded
-    @Column(nullable = false)
+    // Not included in the first milestone, but will be implemented later on second milestone.
     private Progress progressAtReview;
 
     // Metadata Fields ----------
 
     @Column(nullable = false)
-    private OffsetDateTime createdAt;
+    private Instant createdAt;
 
     @Column(nullable = false)
-    private OffsetDateTime updatedAt;
+    private Instant updatedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -52,36 +54,67 @@ public class Review {
 
     protected Review() {}
 
-    private Review(Long authorId, Long courseId, String title, String comment, Rating rating, Progress progressAtReview) {
+    private Review(Long authorId, Long courseId, String title, String comment, Rating rating) {
+        validate(title, comment, rating);
         this.authorId = authorId;
         this.courseId = courseId;
         this.title = title;
         this.comment = comment;
         this.rating = rating;
-        this.progressAtReview = progressAtReview;
         this.reviewStatus = ReviewStatus.PUBLISHED;
     }
 
     // Factory Methods ----------
 
-    public static Review create(Long authorId, Long courseId, String title, String comment, Rating rating, Progress progressAtReview) {
-        return new Review(authorId, courseId, title, comment, rating, progressAtReview);
+    public static Review create(Long authorId, Long courseId, String title, String comment, Rating rating) {
+        return new Review(authorId, courseId, title, comment, rating);
+    }
+
+    // Business Logics ----------
+
+    public void update(Long userId, String title, String comment, Rating rating) {
+        if (isAuthor(userId)) {
+            if (title != null) {
+                this.title = title;
+            }
+            if (comment != null) {
+                this.comment = comment;
+            }
+            if (rating != null) {
+                this.rating = rating;
+            }
+        } else {
+            throw BusinessException.builder(ErrorCode.FORBIDDEN_REVIEW_MODIFICATION).build();
+        }
     }
 
     // Helper Methods ----------
 
+    private boolean isAuthor(Long userId) {
+        return Objects.equals(this.authorId, userId);
+    }
+
+    private void validate(String title, String comment, Rating rating) {
+        if (title == null || title.isBlank()) {
+            throw BusinessException.builder(ErrorCode.INVALID_REVIEW_TITLE).build();
+        }
+        if (comment == null || comment.isBlank()) {
+            throw BusinessException.builder(ErrorCode.INVALID_REVIEW_COMMENT).build();
+        }
+        if (rating == null) {
+            throw BusinessException.builder(ErrorCode.INVALID_REVIEW_RATING).build();
+        }
+    }
+
     @PrePersist
     protected void onCreate() {
-        createdAt = OffsetDateTime.now();
-        updatedAt = OffsetDateTime.now();
+        createdAt = Instant.now();
+        updatedAt = Instant.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = OffsetDateTime.now();
+        updatedAt = Instant.now();
     }
-
-
-
 
 }

@@ -5,6 +5,8 @@ import com.example.lxp.exception.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
+import java.util.Objects;
+
 @Embeddable
 public class Rating {
 
@@ -23,6 +25,21 @@ public class Rating {
             throw BusinessException.builder(ErrorCode.RATING_OUT_OF_RANGE).build();
         }
         return new Rating(stars);
+    }
+
+    public Integer getStars() {
+        return stars;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Rating r)) return false;
+        return Objects.equals(this.stars, r.stars);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(stars);
     }
 
 }
