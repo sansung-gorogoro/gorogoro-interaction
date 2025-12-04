@@ -8,12 +8,16 @@ import java.time.Instant;
 import java.util.Objects;
 
 @Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "uk_author_id_and_course_id", columnNames = {"author_id", "course_id"})
+})
 public class Review {
 
     // Relation Fields ----------
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long id;
 
     @Column(nullable = false)
@@ -117,4 +121,46 @@ public class Review {
         updatedAt = Instant.now();
     }
 
+    // Getters ----------
+
+    public Long getId() {
+        return id;
+    }
+
+    public Long getAuthorId() {
+        return authorId;
+    }
+
+    public Long getCourseId() {
+        return courseId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public Rating getRating() {
+        return rating;
+    }
+
+    public Progress getProgressAtReview() {
+        return progressAtReview;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public ReviewStatus getReviewStatus() {
+        return reviewStatus;
+    }
+    
 }
