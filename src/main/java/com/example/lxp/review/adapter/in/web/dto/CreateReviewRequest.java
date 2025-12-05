@@ -1,0 +1,11 @@
+package com.example.lxp.review.adapter.in.web.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public record CreateReviewRequest(
+        @NotBlank String title,
+        @NotBlank String comment,
+        @NotNull Integer stars
+) {
+}
