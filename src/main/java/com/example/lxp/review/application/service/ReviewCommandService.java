@@ -56,20 +56,12 @@ public class ReviewCommandService implements ReviewCommandUseCase {
         Review savedReview = reviewPersistencePort.save(review);
 
         publishEventPort.publish(ReviewCreatedEvent.from(savedReview));
-
         calculateAndPublishCourseRatingUpdate(command.courseId());
     }
 
     @Override
     public void updateReview(UpdateReviewCommand command) {
-        Review review = reviewPersistencePort.findById(command.reviewId())
-                .orElseThrow(() -> BusinessException.builder(ErrorCode.REVIEW_NOT_FOUND).build());
-        if (!review.getAuthorId().equals(command.authorId())) {
-            throw BusinessException.builder(ErrorCode.FORBIDDEN_REVIEW_MODIFICATION).build();
-        }
-        if (!review.getCourseId().equals(command.courseId())) {
-            throw BusinessException.builder(ErrorCode.INVALID_COURSE_ID_FOR_REVIEW).build();
-        }
+        Review review = findAndValidateReview(command.reviewId(), command.authorId(), command.courseId());
 
         review.update(
                 command.authorId(),
@@ -77,7 +69,6 @@ public class ReviewCommandService implements ReviewCommandUseCase {
                 command.comment(),
                 command.rating()
         );
-
         Review updatedReview = reviewPersistencePort.save(review);
 
         publishEventPort.publish(ReviewUpdatedEvent.from(updatedReview));
@@ -86,14 +77,7 @@ public class ReviewCommandService implements ReviewCommandUseCase {
 
     @Override
     public void deleteReview(DeleteReviewCommand command) {
-        Review review = reviewPersistencePort.findById(command.reviewId())
-                .orElseThrow(() -> BusinessException.builder(ErrorCode.REVIEW_NOT_FOUND).build());
-        if (!review.getAuthorId().equals(command.authorId())) {
-            throw BusinessException.builder(ErrorCode.FORBIDDEN_REVIEW_MODIFICATION).build();
-        }
-        if (!review.getCourseId().equals(command.courseId())) {
-            throw BusinessException.builder(ErrorCode.INVALID_COURSE_ID_FOR_REVIEW).build();
-        }
+        Review review = findAndValidateReview(command.reviewId(), command.authorId(), command.courseId());
 
         reviewPersistencePort.delete(review);
 
@@ -101,14 +85,26 @@ public class ReviewCommandService implements ReviewCommandUseCase {
         calculateAndPublishCourseRatingUpdate(command.courseId());
     }
 
+    private Review findAndValidateReview(Long reviewId, Long authorId, Long courseId) {
+        Review review = reviewPersistencePort.findById(reviewId)
+                .orElseThrow(() -> BusinessException.builder(ErrorCode.REVIEW_NOT_FOUND).build());
+        if (!review.getAuthorId().equals(authorId)) {
+            throw BusinessException.builder(ErrorCode.FORBIDDEN_REVIEW_MODIFICATION).build();
+        }
+        if (!review.getCourseId().equals(courseId)) {
+            throw BusinessException.builder(ErrorCode.INVALID_COURSE_ID_FOR_REVIEW).build();
+        }
+        return review;
+    }
+
     private void calculateAndPublishCourseRatingUpdate(Long courseId) {
         List<Review> reviews = reviewPersistencePort.findAllByCourseId(courseId);
         long newReviewCount = reviews.size();
         double newAverageRating = reviews.stream()
-                .mapToInt(review -> review.getRating().stars())
+                .mapToInt(review -> review.getRating().getStars())
                 .average()
                 .orElse(0.0);
         publishEventPort.publish(new CourseRatingUpdatedEvent(courseId, newAverageRating, newReviewCount));
     }
-    
+
 }
