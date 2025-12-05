@@ -6,21 +6,29 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
-public record Rating(
-        @Column(nullable = false)
-        Integer stars
-) {
+public class Rating {
+
     private static final int RATING_MIN = 0;
     private static final int RATING_MAX = 5;
 
-    public Rating {
-        if (stars != null && (stars < RATING_MIN || stars > RATING_MAX)) {
-            throw BusinessException.builder(ErrorCode.RATING_OUT_OF_RANGE).build();
-        }
+    @Column(nullable = false)
+    private Integer stars;
+
+    protected Rating() {}
+
+    private Rating(Integer stars) {
+        this.stars = stars;
     }
 
     public static Rating of(Integer stars) {
+        if (stars != null && (stars < RATING_MIN || stars > RATING_MAX)) {
+            throw BusinessException.builder(ErrorCode.RATING_OUT_OF_RANGE).build();
+        }
         return new Rating(stars);
     }
 
+    public Integer getStars() {
+        return stars;
+    }
+    
 }

@@ -2,11 +2,18 @@ package com.example.lxp.review.domain.event;
 
 import com.example.lxp.review.domain.model.Review;
 
-public record ReviewDeletedEvent(
-        Long reviewId,
-        Long courseId,
-        Long authorId
-) {
+public class ReviewDeletedEvent {
+
+    private final Long reviewId;
+    private final Long courseId;
+    private final Long authorId;
+
+    private ReviewDeletedEvent(Long reviewId, Long courseId, Long authorId) {
+        this.reviewId = reviewId;
+        this.courseId = courseId;
+        this.authorId = authorId;
+    }
+
     public static ReviewDeletedEvent from(Review review) {
         return new ReviewDeletedEvent(
                 review.getId(),
@@ -14,4 +21,5 @@ public record ReviewDeletedEvent(
                 review.getAuthorId()
         );
     }
+
 }
