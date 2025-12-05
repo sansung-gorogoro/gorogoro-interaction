@@ -6,25 +6,29 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
-public record Progress(
-        @Column(nullable = false)
-        Integer progress
-) {
+public class Progress {
+
     private static final int PROGRESS_MIN = 0;
     private static final int PROGRESS_MAX = 100;
 
-    public Progress {
-        if (progress != null && (progress < PROGRESS_MIN || progress > PROGRESS_MAX)) {
-            throw BusinessException.builder(ErrorCode.PROGRESS_OUT_OF_RANGE).build();
-        }
+    @Column(nullable = false)
+    private Integer progress;
+
+    protected Progress() {}
+
+    private Progress(Integer progress) {
+        this.progress = progress;
     }
 
     public static Progress of(Integer progress) {
+        if (progress != null && (progress < PROGRESS_MIN || progress > PROGRESS_MAX)) {
+            throw BusinessException.builder(ErrorCode.PROGRESS_OUT_OF_RANGE).build();
+        }
         return new Progress(progress);
     }
 
     public Integer getProgress() {
         return progress;
     }
-    
+
 }
