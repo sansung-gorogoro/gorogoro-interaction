@@ -18,7 +18,17 @@ public enum ErrorCode {
     USER_NOT_ENROLLED_IN_COURSE(HttpStatus.FORBIDDEN, "You can only write reviews for courses you are enrolled in."),
 
     // 404 Not Found: Resource Not Found Errors
-    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "Review not found");
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "Review not found"),
+
+    // QnA Domain Error Codes
+    INVALID_QUESTION_TITLE(HttpStatus.BAD_REQUEST, "Invalid question title"),
+    INVALID_QUESTION_CONTENT(HttpStatus.BAD_REQUEST, "Invalid question content"),
+    FORBIDDEN_QUESTION_MODIFICATION(HttpStatus.FORBIDDEN, "Only the author can modify the question"),
+    FORBIDDEN_QUESTION_REPLY(HttpStatus.FORBIDDEN, "Only the root author or instructor can reply to this question"),
+    INVALID_QUESTION_OPERATION(HttpStatus.BAD_REQUEST, "Invalid operation for the current question type or status."),
+    NOT_A_ROOT_QUESTION(HttpStatus.BAD_REQUEST, "This operation can only be performed on a root question."),
+    ID_NOT_GENERATED(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot perform operation before ID is generated."),
+    QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "Question not found");
 
     private final HttpStatus status;
     private final String message;
