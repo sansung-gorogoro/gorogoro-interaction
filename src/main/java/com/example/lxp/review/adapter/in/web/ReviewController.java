@@ -16,8 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/courses/{courseId}/reviews")
 public class ReviewController {
 
-    // TODO: replace with authenticated user id once credential is integrated
-    private static final Long USER_ID_STUB = 1L;
+    private static final String HEADER_USER_ID = "X-User-Id";
 
     private final ReviewCommandUseCase reviewCommandUseCase;
 
@@ -27,11 +26,12 @@ public class ReviewController {
 
     @PostMapping
     public ResponseEntity<Void> createReview(
+            @RequestHeader(HEADER_USER_ID) Long userId,
             @PathVariable Long courseId,
             @RequestBody @Valid CreateReviewRequest body
     ) {
         CreateReviewCommand command = new CreateReviewCommand(
-                USER_ID_STUB,
+                userId,
                 courseId,
                 body.title(),
                 body.comment(),
@@ -43,12 +43,13 @@ public class ReviewController {
 
     @PutMapping("/{reviewId}")
     public ResponseEntity<Void> updateReview(
+            @RequestHeader(HEADER_USER_ID) Long userId,
             @PathVariable Long courseId,
             @PathVariable Long reviewId,
             @RequestBody @Valid UpdateReviewRequest body
     ) {
         UpdateReviewCommand command = new UpdateReviewCommand(
-                USER_ID_STUB,
+                userId,
                 courseId,
                 reviewId,
                 body.title(),
@@ -61,11 +62,12 @@ public class ReviewController {
 
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Void> deleteReview(
+            @RequestHeader(HEADER_USER_ID) Long userId,
             @PathVariable Long courseId,
             @PathVariable Long reviewId
     ) {
         DeleteReviewCommand command = new DeleteReviewCommand(
-                USER_ID_STUB,
+                userId,
                 courseId,
                 reviewId
         );
