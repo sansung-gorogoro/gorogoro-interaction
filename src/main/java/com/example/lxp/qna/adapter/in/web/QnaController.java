@@ -43,10 +43,10 @@ public class QnaController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PutMapping("/{questionId}")
+    @PatchMapping("/{questionId}")
     public ResponseEntity<Void> updateQuestion(
             @PathVariable Long questionId,
-            @RequestBody @Valid UpdateQuestionRequest body,
+            @RequestBody UpdateQuestionRequest body,
             @RequestHeader(HEADER_USER_ID) Long userId
     ) {
         UpdateQuestionCommand command = new UpdateQuestionCommand(
