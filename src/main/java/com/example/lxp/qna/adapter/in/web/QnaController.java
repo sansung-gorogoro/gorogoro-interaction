@@ -15,8 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/courses/{courseId}/lessons/{lessonId}/qna")
 public class QnaController {
 
-    // TODO: replace with authenticated user id once credential is integrated
-    private static final Long USER_ID_STUB = 1L;
+    private static final String HEADER_USER_ID = "X-User-Id";
 
     private final QuestionCommandUseCase questionCommandUseCase;
 
@@ -28,7 +27,8 @@ public class QnaController {
     public ResponseEntity<Void> createQuestion(
             @PathVariable Long courseId,
             @PathVariable Long lessonId,
-            @RequestBody @Valid CreateQuestionRequest body
+            @RequestBody @Valid CreateQuestionRequest body,
+            @RequestHeader(HEADER_USER_ID) Long userId
     ) {
         CreateQuestionCommand command = new CreateQuestionCommand(
                 body.rootId(),
@@ -37,7 +37,7 @@ public class QnaController {
                 lessonId,
                 body.title(),
                 body.content(),
-                USER_ID_STUB
+                userId
         );
         questionCommandUseCase.createQuestion(command);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -46,13 +46,14 @@ public class QnaController {
     @PutMapping("/{questionId}")
     public ResponseEntity<Void> updateQuestion(
             @PathVariable Long questionId,
-            @RequestBody @Valid UpdateQuestionRequest body
+            @RequestBody @Valid UpdateQuestionRequest body,
+            @RequestHeader(HEADER_USER_ID) Long userId
     ) {
         UpdateQuestionCommand command = new UpdateQuestionCommand(
                 questionId,
                 body.title(),
                 body.content(),
-                USER_ID_STUB
+                userId
         );
         questionCommandUseCase.updateQuestion(command);
         return ResponseEntity.ok().build();
@@ -60,14 +61,15 @@ public class QnaController {
 
     @DeleteMapping("/{questionId}")
     public ResponseEntity<Void> deleteQuestion(
-            @PathVariable Long questionId
+            @PathVariable Long questionId,
+            @RequestHeader(HEADER_USER_ID) Long userId
     ) {
         DeleteQuestionCommand command = new DeleteQuestionCommand(
                 questionId,
-                USER_ID_STUB
+                userId
         );
         questionCommandUseCase.deleteQuestion(command);
         return ResponseEntity.noContent().build();
     }
-    
+
 }
