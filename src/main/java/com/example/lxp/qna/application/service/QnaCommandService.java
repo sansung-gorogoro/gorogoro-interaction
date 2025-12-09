@@ -108,12 +108,12 @@ public class QnaCommandService implements QuestionCommandUseCase {
         Question question = qnaPersistencePort.findById(command.questionId())
                 .orElseThrow(() -> BusinessException.builder(ErrorCode.QUESTION_NOT_FOUND).build());
 
-        if (question.getRootId() != null) {
-            throw BusinessException.builder(ErrorCode.INVALID_QUESTION_OPERATION).build();
-        }
-
         question.delete(command.authorId());
-        qnaPersistencePort.deleteByThreadId(question.getThreadId());
+        if (question.getRootId() == null) {
+            qnaPersistencePort.deleteByThreadId(question.getThreadId());
+        } else {
+            qnaPersistencePort.delete(question);
+        }
     }
 
     private boolean canReply(Question rootQuestion, Long replierId) {

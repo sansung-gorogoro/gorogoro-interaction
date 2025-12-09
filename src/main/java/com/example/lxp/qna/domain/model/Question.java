@@ -12,7 +12,7 @@ import java.util.UUID;
 @Table(
         indexes = {
                 @Index(name = "idx_question_thread_id", columnList = "thread_id"),
-                @Index(name = "idx_question_parent_id", columnList = "parent_id")
+                @Index(name = "idx_question_root_id", columnList = "root_id")
         }
 )
 public class Question {
@@ -100,6 +100,7 @@ public class Question {
         }
     }
 
+    // Soft Delete 및 질문의 상태 변화 구현시 사용 예정
     public void delete(Long userId) {
         if (!isAuthor(userId)) {
             throw BusinessException.builder(ErrorCode.FORBIDDEN_QUESTION_MODIFICATION).build();
@@ -124,7 +125,7 @@ public class Question {
         return Objects.equals(this.authorId, userId);
     }
 
-    private void validate(String title, String content, Long rootId, String threadId) { // Renamed param to parentId
+    private void validate(String title, String content, Long rootId, String threadId) {
         if (content == null || content.isBlank()) {
             throw BusinessException.builder(ErrorCode.INVALID_QUESTION_CONTENT).build();
         }
