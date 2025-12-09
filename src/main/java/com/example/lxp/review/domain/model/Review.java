@@ -1,7 +1,7 @@
 package com.example.lxp.review.domain.model;
 
 import com.example.lxp.exception.BusinessException;
-import com.example.lxp.exception.ErrorCode;
+import com.example.lxp.review.exception.ReviewErrorCode;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -88,7 +88,7 @@ public class Review {
                 this.rating = rating;
             }
         } else {
-            throw BusinessException.builder(ErrorCode.FORBIDDEN_REVIEW_MODIFICATION).build();
+            throw BusinessException.builder(ReviewErrorCode.FORBIDDEN_REVIEW_MODIFICATION).build();
         }
     }
 
@@ -100,13 +100,13 @@ public class Review {
 
     private void validate(String title, String comment, Rating rating) {
         if (title == null || title.isBlank()) {
-            throw BusinessException.builder(ErrorCode.INVALID_REVIEW_TITLE).build();
+            throw BusinessException.builder(ReviewErrorCode.INVALID_REVIEW_TITLE).build();
         }
         if (comment == null || comment.isBlank()) {
-            throw BusinessException.builder(ErrorCode.INVALID_REVIEW_COMMENT).build();
+            throw BusinessException.builder(ReviewErrorCode.INVALID_REVIEW_COMMENT).build();
         }
         if (rating == null) {
-            throw BusinessException.builder(ErrorCode.INVALID_REVIEW_RATING).build();
+            throw BusinessException.builder(ReviewErrorCode.INVALID_REVIEW_RATING).build();
         }
     }
 
@@ -162,5 +162,5 @@ public class Review {
     public ReviewStatus getReviewStatus() {
         return reviewStatus;
     }
-    
+
 }

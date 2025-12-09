@@ -1,7 +1,7 @@
 package com.example.lxp.review.domain.model;
 
 import com.example.lxp.exception.BusinessException;
-import com.example.lxp.exception.ErrorCode;
+import com.example.lxp.review.exception.ReviewErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
@@ -22,7 +22,7 @@ public class Progress {
 
     public static Progress of(Integer progress) {
         if (progress != null && (progress < PROGRESS_MIN || progress > PROGRESS_MAX)) {
-            throw BusinessException.builder(ErrorCode.PROGRESS_OUT_OF_RANGE).build();
+            throw BusinessException.builder(ReviewErrorCode.PROGRESS_OUT_OF_RANGE).build();
         }
         return new Progress(progress);
     }

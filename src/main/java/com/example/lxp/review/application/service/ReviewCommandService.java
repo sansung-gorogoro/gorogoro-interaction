@@ -2,7 +2,6 @@ package com.example.lxp.review.application.service;
 
 import com.example.lxp.common.port.out.PublishEventPort;
 import com.example.lxp.exception.BusinessException;
-import com.example.lxp.exception.ErrorCode;
 import com.example.lxp.review.application.port.in.ReviewCommandUseCase;
 import com.example.lxp.review.application.port.in.dto.CreateReviewCommand;
 import com.example.lxp.review.application.port.in.dto.DeleteReviewCommand;
@@ -14,6 +13,7 @@ import com.example.lxp.review.domain.event.ReviewCreatedEvent;
 import com.example.lxp.review.domain.event.ReviewDeletedEvent;
 import com.example.lxp.review.domain.event.ReviewUpdatedEvent;
 import com.example.lxp.review.domain.model.Review;
+import com.example.lxp.review.exception.ReviewErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,10 +41,10 @@ public class ReviewCommandService implements ReviewCommandUseCase {
     public void createReview(CreateReviewCommand command) {
         // EXTERNAL: OUTGOING
         if (!checkEnrollmentPort.isEnrolled(command.authorId(), command.courseId())) {
-            throw BusinessException.builder(ErrorCode.USER_NOT_ENROLLED_IN_COURSE).build();
+            throw BusinessException.builder(ReviewErrorCode.USER_NOT_ENROLLED_IN_COURSE).build();
         }
         if (reviewPersistencePort.findByCourseIdAndAuthorId(command.authorId(), command.courseId()).isPresent()) {
-            throw BusinessException.builder(ErrorCode.REVIEW_ALREADY_EXISTS).build();
+            throw BusinessException.builder(ReviewErrorCode.REVIEW_ALREADY_EXISTS).build();
         }
         Review review = Review.create(
                 command.authorId(),
@@ -87,12 +87,12 @@ public class ReviewCommandService implements ReviewCommandUseCase {
 
     private Review findAndValidateReview(Long reviewId, Long authorId, Long courseId) {
         Review review = reviewPersistencePort.findById(reviewId)
-                .orElseThrow(() -> BusinessException.builder(ErrorCode.REVIEW_NOT_FOUND).build());
+                .orElseThrow(() -> BusinessException.builder(ReviewErrorCode.REVIEW_NOT_FOUND).build());
         if (!review.getAuthorId().equals(authorId)) {
-            throw BusinessException.builder(ErrorCode.FORBIDDEN_REVIEW_MODIFICATION).build();
+            throw BusinessException.builder(ReviewErrorCode.FORBIDDEN_REVIEW_MODIFICATION).build();
         }
         if (!review.getCourseId().equals(courseId)) {
-            throw BusinessException.builder(ErrorCode.INVALID_COURSE_ID_FOR_REVIEW).build();
+            throw BusinessException.builder(ReviewErrorCode.INVALID_COURSE_ID_FOR_REVIEW).build();
         }
         return review;
     }
