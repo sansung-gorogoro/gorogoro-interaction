@@ -2,8 +2,8 @@ package com.example.lxp.qna.application.service;
 
 import com.example.lxp.common.port.out.PublishEventPort;
 import com.example.lxp.exception.BusinessException;
-import com.example.lxp.exception.ErrorCode;
 import com.example.lxp.qna.application.port.in.QuestionCommandUseCase;
+import com.example.lxp.qna.application.port.in.dto.AddAnswerCommand;
 import com.example.lxp.qna.application.port.in.dto.CreateQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.DeleteQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.UpdateQuestionCommand;
@@ -11,6 +11,7 @@ import com.example.lxp.qna.application.port.out.QnaPersistencePort;
 import com.example.lxp.qna.application.port.out.VerifyInstructorPort;
 import com.example.lxp.qna.domain.event.QuestionCreatedEvent;
 import com.example.lxp.qna.domain.model.Question;
+import com.example.lxp.qna.exception.QnaErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,7 +86,7 @@ public class QnaCommandService implements QuestionCommandUseCase {
     @Override
     public Question updateQuestion(UpdateQuestionCommand command) {
         Question question = qnaPersistencePort.findById(command.questionId())
-                .orElseThrow(() -> BusinessException.builder(ErrorCode.QUESTION_NOT_FOUND).build());
+                .orElseThrow(() -> BusinessException.builder(QnaErrorCode.QUESTION_NOT_FOUND).build());
 
         question.update(
                 command.authorId(),
@@ -99,7 +100,7 @@ public class QnaCommandService implements QuestionCommandUseCase {
     @Override
     public void deleteQuestion(DeleteQuestionCommand command) {
         Question question = qnaPersistencePort.findById(command.questionId())
-                .orElseThrow(() -> BusinessException.builder(ErrorCode.QUESTION_NOT_FOUND).build());
+                .orElseThrow(() -> BusinessException.builder(QnaErrorCode.QUESTION_NOT_FOUND).build());
 
         question.delete(command.authorId());
         if (question.getRootId() == null) {
