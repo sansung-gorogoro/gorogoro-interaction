@@ -1,18 +1,15 @@
 package com.example.lxp.review.domain.event;
 
+import com.example.lxp.common.messaging.domain.model.DomainEvent;
 import com.example.lxp.review.domain.model.Review;
 
-public class ReviewUpdatedEvent {
+public record ReviewUpdatedEvent(
 
-    private final Long reviewId;
-    private final Long courseId;
-    private final Long authorId;
+        Long reviewId,
+        Long courseId,
+        Long authorId
 
-    private ReviewUpdatedEvent(Long reviewId, Long courseId, Long authorId) {
-        this.reviewId = reviewId;
-        this.courseId = courseId;
-        this.authorId = authorId;
-    }
+) implements DomainEvent {
 
     public static ReviewUpdatedEvent from(Review review) {
         return new ReviewUpdatedEvent(
@@ -20,6 +17,16 @@ public class ReviewUpdatedEvent {
                 review.getCourseId(),
                 review.getAuthorId()
         );
+    }
+
+    @Override
+    public String type() {
+        return "";
+    }
+
+    @Override
+    public String version() {
+        return DomainEvent.super.version();
     }
 
 }
