@@ -1,7 +1,7 @@
 package com.example.lxp.qna.application.service;
 
-import com.example.lxp.common.port.out.PublishEventPort;
 import com.example.lxp.exception.BusinessException;
+import com.example.lxp.messaging.port.out.EventPublisherPort;
 import com.example.lxp.qna.application.port.in.QuestionCommandUseCase;
 import com.example.lxp.qna.application.port.in.dto.AddAnswerCommand;
 import com.example.lxp.qna.application.port.in.dto.CreateQuestionCommand;
@@ -22,12 +22,12 @@ import java.util.Objects;
 public class QnaCommandService implements QuestionCommandUseCase {
 
     private final QnaPersistencePort qnaPersistencePort;
-    private final PublishEventPort publishEventPort;
+    private final EventPublisherPort publishEventPort;
     private final VerifyInstructorPort verifyInstructorPort;
 
     public QnaCommandService(
             QnaPersistencePort qnaPersistencePort,
-            PublishEventPort publishEventPort,
+            EventPublisherPort publishEventPort,
             VerifyInstructorPort verifyInstructorPort
     ) {
         this.qnaPersistencePort = qnaPersistencePort;

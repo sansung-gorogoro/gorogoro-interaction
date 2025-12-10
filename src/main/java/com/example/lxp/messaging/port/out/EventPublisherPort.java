@@ -1,4 +1,4 @@
-package com.example.lxp.common.port.out;
+package com.example.lxp.messaging.port.out;
 
 public interface EventPublisherPort {
     void publish(Object event);
