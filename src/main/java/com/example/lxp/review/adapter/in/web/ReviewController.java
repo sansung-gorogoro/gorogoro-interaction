@@ -1,7 +1,7 @@
 package com.example.lxp.review.adapter.in.web;
 
-import com.example.lxp.common.model.dto.Role;
-import com.example.lxp.common.model.dto.User;
+import com.example.lxp.common.model.Role;
+import com.example.lxp.common.model.User;
 import com.example.lxp.review.adapter.in.web.dto.CreateReviewRequest;
 import com.example.lxp.review.adapter.in.web.dto.UpdateReviewRequest;
 import com.example.lxp.review.application.port.in.ReviewCommandUseCase;

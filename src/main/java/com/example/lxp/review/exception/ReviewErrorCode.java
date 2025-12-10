@@ -8,8 +8,8 @@ public enum ReviewErrorCode implements ErrorCode {
     // 400
     RATING_OUT_OF_RANGE(HttpStatus.BAD_REQUEST, "Rating must be between 0 and 5"),
     PROGRESS_OUT_OF_RANGE(HttpStatus.BAD_REQUEST, "Progress must be between 0 and 100"),
-    INVALID_REVIEW_TITLE(HttpStatus.BAD_REQUEST, "Invalid review title"),
-    INVALID_REVIEW_COMMENT(HttpStatus.BAD_REQUEST, "Invalid review comment"),
+    REVIEW_TITLE_IS_BLANK(HttpStatus.BAD_REQUEST, "Review title cannot be blank"),
+    REVIEW_COMMENT_IS_BLANK(HttpStatus.BAD_REQUEST, "Review comment cannot be blank"),
     INVALID_REVIEW_RATING(HttpStatus.BAD_REQUEST, "Invalid review rating"),
     INVALID_COURSE_ID_FOR_REVIEW(HttpStatus.BAD_REQUEST, "The specified course ID does not match the review's course ID."),
 

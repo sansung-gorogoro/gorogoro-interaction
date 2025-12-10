@@ -1,6 +1,6 @@
 package com.example.lxp.review.application.port.in.dto;
 
-import com.example.lxp.common.model.dto.User;
+import com.example.lxp.common.model.User;
 import jakarta.validation.constraints.NotNull;
 
 public record DeleteReviewCommand(

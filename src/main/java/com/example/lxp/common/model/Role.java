@@ -1,4 +1,4 @@
-package com.example.lxp.common.model.dto;
+package com.example.lxp.common.model;
 
 public enum Role {
     ADMIN,
