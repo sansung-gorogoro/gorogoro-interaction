@@ -1,5 +1,5 @@
 package com.example.lxp.common.port.out;
 
-public interface PublishEventPort {
+public interface EventPublisherPort {
     void publish(Object event);
 }
