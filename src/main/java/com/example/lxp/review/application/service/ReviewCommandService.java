@@ -1,6 +1,6 @@
 package com.example.lxp.review.application.service;
 
-import com.example.lxp.common.port.out.external.PublishEventPort;
+import com.example.lxp.common.port.out.external.EventPublisherPort;
 import com.example.lxp.exception.BusinessException;
 import com.example.lxp.review.application.port.in.ReviewCommandUseCase;
 import com.example.lxp.review.application.port.in.dto.CreateReviewCommand;
@@ -25,16 +25,16 @@ public class ReviewCommandService implements ReviewCommandUseCase {
 
     private final CheckEnrollmentPort checkEnrollmentPort;
     private final ReviewPersistencePort reviewPersistencePort;
-    private final PublishEventPort publishEventPort;
+    private final EventPublisherPort eventPublisherPort;
 
     public ReviewCommandService(
             CheckEnrollmentPort checkEnrollmentPort,
             ReviewPersistencePort reviewPersistencePort,
-            PublishEventPort publishEventPort
+            EventPublisherPort eventPublisherPort
     ) {
         this.checkEnrollmentPort = checkEnrollmentPort;
         this.reviewPersistencePort = reviewPersistencePort;
-        this.publishEventPort = publishEventPort;
+        this.eventPublisherPort = eventPublisherPort;
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ReviewCommandService implements ReviewCommandUseCase {
         );
         Review savedReview = reviewPersistencePort.save(review);
 
-        publishEventPort.publish(ReviewCreatedEvent.from(savedReview));
+        eventPublisherPort.publish(ReviewCreatedEvent.from(savedReview));
         calculateAndPublishCourseRatingUpdate(command.courseId());
     }
 
@@ -71,7 +71,7 @@ public class ReviewCommandService implements ReviewCommandUseCase {
         );
         Review updatedReview = reviewPersistencePort.save(review);
 
-        publishEventPort.publish(ReviewUpdatedEvent.from(updatedReview));
+        eventPublisherPort.publish(ReviewUpdatedEvent.from(updatedReview));
         calculateAndPublishCourseRatingUpdate(command.courseId());
     }
 
@@ -81,7 +81,7 @@ public class ReviewCommandService implements ReviewCommandUseCase {
 
         reviewPersistencePort.delete(review);
 
-        publishEventPort.publish(ReviewDeletedEvent.from(review));
+        eventPublisherPort.publish(ReviewDeletedEvent.from(review));
         calculateAndPublishCourseRatingUpdate(command.courseId());
     }
 
@@ -104,7 +104,7 @@ public class ReviewCommandService implements ReviewCommandUseCase {
                 .mapToInt(review -> review.getRating().getStars())
                 .average()
                 .orElse(0.0);
-        publishEventPort.publish(new CourseRatingUpdatedEvent(courseId, newAverageRating, newReviewCount));
+        eventPublisherPort.publish(new CourseRatingUpdatedEvent(courseId, newAverageRating, newReviewCount));
     }
 
 }
