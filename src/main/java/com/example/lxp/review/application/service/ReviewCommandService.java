@@ -1,10 +1,12 @@
 package com.example.lxp.review.application.service;
 
+import com.example.lxp.common.messaging.port.out.EventPublisherPort;
 import com.example.lxp.exception.BusinessException;
-import com.example.lxp.messaging.port.out.EventPublisherPort;
 import com.example.lxp.review.application.port.in.ReviewCommandUseCase;
+import com.example.lxp.review.application.port.in.ReviewIntegrationUseCase;
 import com.example.lxp.review.application.port.in.dto.CreateReviewCommand;
 import com.example.lxp.review.application.port.in.dto.DeleteReviewCommand;
+import com.example.lxp.review.application.port.in.dto.DeleteReviewsByCourseCommand;
 import com.example.lxp.review.application.port.in.dto.UpdateReviewCommand;
 import com.example.lxp.review.application.port.out.CheckEnrollmentPort;
 import com.example.lxp.review.application.port.out.ReviewPersistencePort;
@@ -21,7 +23,7 @@ import java.util.List;
 
 @Service
 @Transactional
-public class ReviewCommandService implements ReviewCommandUseCase {
+public class ReviewCommandService implements ReviewCommandUseCase, ReviewIntegrationUseCase {
 
     private final CheckEnrollmentPort checkEnrollmentPort;
     private final ReviewPersistencePort reviewPersistencePort;
@@ -83,6 +85,11 @@ public class ReviewCommandService implements ReviewCommandUseCase {
 
         eventPublisherPort.publish(ReviewDeletedEvent.from(review));
         calculateAndPublishCourseRatingUpdate(command.courseId());
+    }
+
+    @Override
+    public void deleteReviewsByCourseId(DeleteReviewsByCourseCommand command) {
+        reviewPersistencePort.deleteAllByCourseId(command.courseId());
     }
 
     private Review findAndValidateReview(Long reviewId, Long authorId, Long courseId) {
