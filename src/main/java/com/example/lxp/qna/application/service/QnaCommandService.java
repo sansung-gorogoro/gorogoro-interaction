@@ -1,7 +1,7 @@
 package com.example.lxp.qna.application.service;
 
+import com.example.lxp.common.messaging.port.out.EventPublisherPort;
 import com.example.lxp.exception.BusinessException;
-import com.example.lxp.messaging.port.out.EventPublisherPort;
 import com.example.lxp.qna.application.port.in.QuestionCommandUseCase;
 import com.example.lxp.qna.application.port.in.dto.AddAnswerCommand;
 import com.example.lxp.qna.application.port.in.dto.CreateQuestionCommand;

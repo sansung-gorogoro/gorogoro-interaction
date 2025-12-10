@@ -92,7 +92,7 @@ public class ReviewCommandService implements ReviewCommandUseCase {
             throw BusinessException.builder(ReviewErrorCode.FORBIDDEN_REVIEW_MODIFICATION).build();
         }
         if (!review.getCourseId().equals(courseId)) {
-            throw BusinessException.builder(ReviewErrorCode.INVALID_COURSE_ID_FOR_REVIEW).build();
+            throw BusinessException.builder(ReviewErrorCode.REVIEW_COURSE_ID_MISMATCH).build();
         }
         return review;
     }
