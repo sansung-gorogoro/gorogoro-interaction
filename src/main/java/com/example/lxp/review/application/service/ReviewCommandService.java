@@ -1,6 +1,6 @@
 package com.example.lxp.review.application.service;
 
-import com.example.lxp.common.port.out.external.EventPublisherPort;
+import com.example.lxp.common.port.out.EventPublisherPort;
 import com.example.lxp.exception.BusinessException;
 import com.example.lxp.review.application.port.in.ReviewCommandUseCase;
 import com.example.lxp.review.application.port.in.dto.CreateReviewCommand;
