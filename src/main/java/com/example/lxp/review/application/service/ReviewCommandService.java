@@ -1,6 +1,6 @@
 package com.example.lxp.review.application.service;
 
-import com.example.lxp.common.port.out.PublishEventPort;
+import com.example.lxp.common.port.out.external.PublishEventPort;
 import com.example.lxp.exception.BusinessException;
 import com.example.lxp.review.application.port.in.ReviewCommandUseCase;
 import com.example.lxp.review.application.port.in.dto.CreateReviewCommand;
@@ -40,14 +40,14 @@ public class ReviewCommandService implements ReviewCommandUseCase {
     @Override
     public void createReview(CreateReviewCommand command) {
         // EXTERNAL: OUTGOING
-        if (!checkEnrollmentPort.isEnrolled(command.authorId(), command.courseId())) {
+        if (!checkEnrollmentPort.isEnrolled(command.user().id(), command.courseId())) {
             throw BusinessException.builder(ReviewErrorCode.USER_NOT_ENROLLED_IN_COURSE).build();
         }
-        if (reviewPersistencePort.findByCourseIdAndAuthorId(command.authorId(), command.courseId()).isPresent()) {
+        if (reviewPersistencePort.findByCourseIdAndAuthorId(command.user().id(), command.courseId()).isPresent()) {
             throw BusinessException.builder(ReviewErrorCode.REVIEW_ALREADY_EXISTS).build();
         }
         Review review = Review.create(
-                command.authorId(),
+                command.user().id(),
                 command.courseId(),
                 command.title(),
                 command.comment(),
@@ -61,10 +61,10 @@ public class ReviewCommandService implements ReviewCommandUseCase {
 
     @Override
     public void updateReview(UpdateReviewCommand command) {
-        Review review = findAndValidateReview(command.reviewId(), command.authorId(), command.courseId());
+        Review review = findAndValidateReview(command.reviewId(), command.user().id(), command.courseId());
 
         review.update(
-                command.authorId(),
+                command.user().id(),
                 command.title(),
                 command.comment(),
                 command.rating()
@@ -77,7 +77,7 @@ public class ReviewCommandService implements ReviewCommandUseCase {
 
     @Override
     public void deleteReview(DeleteReviewCommand command) {
-        Review review = findAndValidateReview(command.reviewId(), command.authorId(), command.courseId());
+        Review review = findAndValidateReview(command.reviewId(), command.user().id(), command.courseId());
 
         reviewPersistencePort.delete(review);
 
