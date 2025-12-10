@@ -16,7 +16,9 @@ public interface ReviewPersistencePort {
     List<Review> findAllByCourseId(Long courseId);
 
     long countByCourseId(Long courseId);
-    
+
     Optional<Review> findByCourseIdAndAuthorId(Long courseId, Long authorId);
+
+    void deleteAllByCourseId(Long courseId);
 
 }

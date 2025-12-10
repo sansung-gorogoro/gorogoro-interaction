@@ -45,4 +45,10 @@ public class ReviewPersistenceAdapter implements ReviewPersistencePort {
     public Optional<Review> findByCourseIdAndAuthorId(Long courseId, Long authorId) {
         return reviewRepository.findByCourseIdAndAuthorId(courseId, authorId);
     }
+
+    @Override
+    public void deleteAllByCourseId(Long courseId) {
+        reviewRepository.deleteAllByCourseId(courseId);
+    }
+    
 }
