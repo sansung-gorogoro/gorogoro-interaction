@@ -1,7 +1,7 @@
 package com.example.lxp.review.domain.model;
 
 import com.example.lxp.exception.BusinessException;
-import com.example.lxp.exception.ErrorCode;
+import com.example.lxp.review.exception.ReviewErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
@@ -22,7 +22,7 @@ public class Rating {
 
     public static Rating of(Integer stars) {
         if (stars != null && (stars < RATING_MIN || stars > RATING_MAX)) {
-            throw BusinessException.builder(ErrorCode.RATING_OUT_OF_RANGE).build();
+            throw BusinessException.builder(ReviewErrorCode.RATING_OUT_OF_RANGE).build();
         }
         return new Rating(stars);
     }
@@ -30,5 +30,5 @@ public class Rating {
     public Integer getStars() {
         return stars;
     }
-    
+
 }
