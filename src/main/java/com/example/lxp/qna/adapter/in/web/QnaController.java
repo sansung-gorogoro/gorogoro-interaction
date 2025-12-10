@@ -1,8 +1,10 @@
 package com.example.lxp.qna.adapter.in.web;
 
+import com.example.lxp.qna.adapter.in.web.dto.AddAnswerRequest;
 import com.example.lxp.qna.adapter.in.web.dto.CreateQuestionRequest;
 import com.example.lxp.qna.adapter.in.web.dto.UpdateQuestionRequest;
 import com.example.lxp.qna.application.port.in.QuestionCommandUseCase;
+import com.example.lxp.qna.application.port.in.dto.AddAnswerCommand;
 import com.example.lxp.qna.application.port.in.dto.CreateQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.DeleteQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.UpdateQuestionCommand;
@@ -31,8 +33,6 @@ public class QnaController {
             @RequestHeader(HEADER_USER_ID) Long userId
     ) {
         CreateQuestionCommand command = new CreateQuestionCommand(
-                body.rootId(),
-                body.threadId(),
                 courseId,
                 lessonId,
                 body.title(),
@@ -40,6 +40,25 @@ public class QnaController {
                 userId
         );
         questionCommandUseCase.createQuestion(command);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/{questionId}/replies")
+    public ResponseEntity<Void> addAnswer(
+            @PathVariable Long courseId,
+            @PathVariable Long lessonId,
+            @PathVariable Long questionId,
+            @RequestBody @Valid AddAnswerRequest body,
+            @RequestHeader(HEADER_USER_ID) Long userId
+    ) {
+        AddAnswerCommand command = new AddAnswerCommand(
+                questionId,
+                userId,
+                body.content(),
+                courseId,
+                lessonId
+        );
+        questionCommandUseCase.addAnswer(command);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

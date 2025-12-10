@@ -2,8 +2,8 @@ package com.example.lxp.qna.application.service;
 
 import com.example.lxp.common.port.out.PublishEventPort;
 import com.example.lxp.exception.BusinessException;
-import com.example.lxp.exception.ErrorCode;
 import com.example.lxp.qna.application.port.in.QuestionCommandUseCase;
+import com.example.lxp.qna.application.port.in.dto.AddAnswerCommand;
 import com.example.lxp.qna.application.port.in.dto.CreateQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.DeleteQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.UpdateQuestionCommand;
@@ -11,6 +11,7 @@ import com.example.lxp.qna.application.port.out.QnaPersistencePort;
 import com.example.lxp.qna.application.port.out.VerifyInstructorPort;
 import com.example.lxp.qna.domain.event.QuestionCreatedEvent;
 import com.example.lxp.qna.domain.model.Question;
+import com.example.lxp.qna.exception.QnaErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,51 +37,44 @@ public class QnaCommandService implements QuestionCommandUseCase {
 
     @Override
     public Question createQuestion(CreateQuestionCommand command) {
-        if (command.rootId() == null) {
-            if (command.threadId() != null && !command.threadId().isBlank()) {
-                throw BusinessException.builder(ErrorCode.INVALID_QUESTION_OPERATION).build();
-            }
+        Question question = Question.createRoot(
+                command.courseId(),
+                command.lessonId(),
+                command.authorId(),
+                command.title(),
+                command.comment()
+        );
 
-            Question question = Question.createRoot(
-                    command.courseId(),
-                    command.lessonId(),
-                    command.authorId(),
-                    command.title(),
-                    command.comment()
-            );
+        Question savedQuestion = qnaPersistencePort.save(question);
+        publishEventPort.publish(QuestionCreatedEvent.from(savedQuestion));
+        return savedQuestion;
+    }
 
-            Question savedQuestion = qnaPersistencePort.save(question);
-            publishEventPort.publish(QuestionCreatedEvent.from(savedQuestion));
-            return savedQuestion;
-        }
-
-        Question parentQuestion = qnaPersistencePort.findById(command.rootId())
-                .orElseThrow(() -> BusinessException.builder(ErrorCode.QUESTION_NOT_FOUND).build());
+    @Override
+    public Question addAnswer(AddAnswerCommand command) {
+        Question parentQuestion = qnaPersistencePort.findById(command.rootQuestionId())
+                .orElseThrow(() -> BusinessException.builder(QnaErrorCode.QUESTION_NOT_FOUND).build());
 
         if (!Objects.equals(parentQuestion.getCourseId(), command.courseId())
                 || !Objects.equals(parentQuestion.getLessonId(), command.lessonId())) {
-            throw BusinessException.builder(ErrorCode.INVALID_QUESTION_OPERATION).build();
-        }
-
-        if (command.threadId() != null && !Objects.equals(parentQuestion.getThreadId(), command.threadId())) {
-            throw BusinessException.builder(ErrorCode.INVALID_QUESTION_OPERATION).build();
+            throw BusinessException.builder(QnaErrorCode.QUESTION_CONTEXT_MISMATCH).build();
         }
 
         if (parentQuestion.getRootId() != null) {
-            throw BusinessException.builder(ErrorCode.INVALID_QUESTION_OPERATION).build();
+            throw BusinessException.builder(QnaErrorCode.CANNOT_REPLY_TO_REPLY).build();
         }
 
         if (!canReply(parentQuestion, command.authorId())) {
-            throw BusinessException.builder(ErrorCode.FORBIDDEN_QUESTION_REPLY).build();
+            throw BusinessException.builder(QnaErrorCode.FORBIDDEN_QUESTION_REPLY).build();
         }
 
         Question reply = Question.createReply(
-                command.rootId(),
+                command.rootQuestionId(),
                 parentQuestion.getThreadId(),
                 command.courseId(),
                 command.lessonId(),
                 command.authorId(),
-                command.comment()
+                command.content()
         );
 
         Question savedReply = qnaPersistencePort.save(reply);
@@ -92,7 +86,7 @@ public class QnaCommandService implements QuestionCommandUseCase {
     @Override
     public Question updateQuestion(UpdateQuestionCommand command) {
         Question question = qnaPersistencePort.findById(command.questionId())
-                .orElseThrow(() -> BusinessException.builder(ErrorCode.QUESTION_NOT_FOUND).build());
+                .orElseThrow(() -> BusinessException.builder(QnaErrorCode.QUESTION_NOT_FOUND).build());
 
         question.update(
                 command.authorId(),
@@ -106,7 +100,7 @@ public class QnaCommandService implements QuestionCommandUseCase {
     @Override
     public void deleteQuestion(DeleteQuestionCommand command) {
         Question question = qnaPersistencePort.findById(command.questionId())
-                .orElseThrow(() -> BusinessException.builder(ErrorCode.QUESTION_NOT_FOUND).build());
+                .orElseThrow(() -> BusinessException.builder(QnaErrorCode.QUESTION_NOT_FOUND).build());
 
         question.delete(command.authorId());
         if (question.getRootId() == null) {

@@ -1,7 +1,7 @@
 package com.example.lxp.qna.domain.model;
 
 import com.example.lxp.exception.BusinessException;
-import com.example.lxp.exception.ErrorCode;
+import com.example.lxp.qna.exception.QnaErrorCode;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -90,7 +90,7 @@ public class Question {
 
     public void update(Long userId, String title, String content) {
         if (!isAuthor(userId)) {
-            throw BusinessException.builder(ErrorCode.FORBIDDEN_QUESTION_MODIFICATION).build();
+            throw BusinessException.builder(QnaErrorCode.FORBIDDEN_QUESTION_MODIFICATION).build();
         }
         if (title != null && !title.isBlank()) {
             this.title = title;
@@ -103,7 +103,7 @@ public class Question {
     // Soft Delete 및 질문의 상태 변화 구현시 사용 예정
     public void delete(Long userId) {
         if (!isAuthor(userId)) {
-            throw BusinessException.builder(ErrorCode.FORBIDDEN_QUESTION_MODIFICATION).build();
+            throw BusinessException.builder(QnaErrorCode.FORBIDDEN_QUESTION_MODIFICATION).build();
         }
         this.status = QuestionStatus.DELETED;
     }
@@ -111,10 +111,10 @@ public class Question {
     // MVP-002: 추후 업데이트로 질문의 상태 변화에 대한 코드 적용 예정
     public void resolve(Long userId) {
         if (!isAuthor(userId)) {
-            throw BusinessException.builder(ErrorCode.FORBIDDEN_QUESTION_MODIFICATION).build();
+            throw BusinessException.builder(QnaErrorCode.FORBIDDEN_QUESTION_MODIFICATION).build();
         }
         if (this.rootId != null) { // This question is a reply
-            throw BusinessException.builder(ErrorCode.INVALID_QUESTION_OPERATION).build();
+            throw BusinessException.builder(QnaErrorCode.CANNOT_RESOLVE_REPLY).build();
         }
         this.status = QuestionStatus.RESOLVED;
     }
@@ -127,13 +127,13 @@ public class Question {
 
     private void validate(String title, String content, Long rootId, String threadId) {
         if (content == null || content.isBlank()) {
-            throw BusinessException.builder(ErrorCode.INVALID_QUESTION_CONTENT).build();
+            throw BusinessException.builder(QnaErrorCode.QUESTION_CONTENT_IS_BLANK).build();
         }
         if (rootId == null && (title == null || title.isBlank())) {
-            throw BusinessException.builder(ErrorCode.INVALID_QUESTION_TITLE).build();
+            throw BusinessException.builder(QnaErrorCode.QUESTION_TITLE_IS_BLANK).build();
         }
         if (threadId == null || threadId.isBlank()) {
-            throw BusinessException.builder(ErrorCode.INVALID_QUESTION_OPERATION).build();
+            throw BusinessException.builder(QnaErrorCode.QUESTION_THREAD_ID_IS_BLANK).build();
         }
     }
 
