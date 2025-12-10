@@ -77,18 +77,24 @@ public class Review {
     // Business Logics ----------
 
     public void update(Long userId, String title, String comment, Rating rating) {
-        if (isAuthor(userId)) {
-            if (title != null) {
-                this.title = title;
-            }
-            if (comment != null) {
-                this.comment = comment;
-            }
-            if (rating != null) {
-                this.rating = rating;
-            }
-        } else {
+        if (!isAuthor(userId)) {
             throw BusinessException.builder(ReviewErrorCode.FORBIDDEN_REVIEW_MODIFICATION).build();
+        }
+
+        if (title != null) {
+            if (title.isBlank()) {
+                throw BusinessException.builder(ReviewErrorCode.REVIEW_TITLE_IS_BLANK).build();
+            }
+            this.title = title;
+        }
+        if (comment != null) {
+            if (comment.isBlank()) {
+                throw BusinessException.builder(ReviewErrorCode.REVIEW_COMMENT_IS_BLANK).build();
+            }
+            this.comment = comment;
+        }
+        if (rating != null) {
+            this.rating = rating;
         }
     }
 
@@ -100,10 +106,10 @@ public class Review {
 
     private void validate(String title, String comment, Rating rating) {
         if (title == null || title.isBlank()) {
-            throw BusinessException.builder(ReviewErrorCode.INVALID_REVIEW_TITLE).build();
+            throw BusinessException.builder(ReviewErrorCode.REVIEW_TITLE_IS_BLANK).build();
         }
         if (comment == null || comment.isBlank()) {
-            throw BusinessException.builder(ReviewErrorCode.INVALID_REVIEW_COMMENT).build();
+            throw BusinessException.builder(ReviewErrorCode.REVIEW_COMMENT_IS_BLANK).build();
         }
         if (rating == null) {
             throw BusinessException.builder(ReviewErrorCode.INVALID_REVIEW_RATING).build();
