@@ -32,7 +32,7 @@ public class RabbitConfig {
     }
 
     /**
-     * DLX(Dead Letter Exchange)와 DLQ(Dead Letter Queue)를 설정해줌으로써 컨슘시 발생한 문제를 해당 큐로 던지는 역할을한다.
+     * Review Domain Queue
      */
     @Bean
     public Queue reviewQueue() {
@@ -44,7 +44,7 @@ public class RabbitConfig {
     }
 
     /**
-     * 필요시
+     * Qna Domain Queue
      */
     @Bean
     public Queue qnaQueue() {
@@ -55,6 +55,9 @@ public class RabbitConfig {
                 .build();
     }
 
+    /**
+     * Dead Letter Queue
+     */
     @Bean
     public Queue dlq() {
         return QueueBuilder.durable(props.dlq().name())

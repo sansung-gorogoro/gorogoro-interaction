@@ -21,7 +21,7 @@ public record ReviewDeletedEvent(
 
     @Override
     public String type() {
-        return "";
+        return "review.deleted";
     }
 
     @Override

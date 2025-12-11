@@ -21,7 +21,7 @@ public record ReviewUpdatedEvent(
 
     @Override
     public String type() {
-        return "";
+        return "review.updated";
     }
 
     @Override

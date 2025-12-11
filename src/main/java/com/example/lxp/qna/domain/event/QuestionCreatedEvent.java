@@ -25,7 +25,7 @@ public record QuestionCreatedEvent(
 
     @Override
     public String type() {
-        return "";
+        return "question.created";
     }
 
     @Override

@@ -35,7 +35,7 @@ public record EventEnvelope<T extends DomainEvent>(
         if (additional == null || additional.isEmpty()) {
             return this;
         }
-        var merged = new HashMap<>(this.metadata());
+        HashMap<String, String> merged = new HashMap<>(this.metadata());
         merged.putAll(additional);
         return new EventEnvelope<>(eventId, occurredAt, payload, merged);
     }
