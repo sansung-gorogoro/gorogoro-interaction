@@ -2,22 +2,42 @@ package com.example.lxp.common.messaging.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "rabbit.config")
+import java.util.List;
+
+@ConfigurationProperties(prefix = "rabbit.events")
 public record MessagingProps(
-
         String exchange,
-        String routing
-
+        String routingPrefix,
+        Queues queues,
+        DeadLetters dlq
 ) {
     /**
      * 라우팅키 생성 헬퍼. 접두사가 정해져 있으면 붙이고, 없으면 이벤트 타입을 그대로 사용.
      */
     public String toRoutingKey(String eventType) {
-        if (routing == null || routing.isBlank()) {
+        if (routingPrefix == null || routingPrefix.isBlank()) {
             return eventType;
         }
-        // routing 값이 이미 완전한 키라면 그대로 사용 (POC)
-        return routing.endsWith(".") ? routing + eventType : routing;
+        return routingPrefix.endsWith(".") ? routingPrefix + eventType : routingPrefix;
+    }
+
+    public record Queues(
+            QueueProps review,
+            QueueProps qna
+    ) {
+    }
+
+    public record QueueProps(
+            String name,
+            List<String> bindings
+    ) {
+    }
+
+    public record DeadLetters(
+            String dlx,
+            String name,
+            String routing
+    ) {
     }
 
 }

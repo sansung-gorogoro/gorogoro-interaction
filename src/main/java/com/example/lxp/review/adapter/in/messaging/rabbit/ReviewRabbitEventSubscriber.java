@@ -21,7 +21,7 @@ public class ReviewRabbitEventSubscriber {
         this.reviewIntegrationUseCase = reviewIntegrationUseCase;
     }
 
-    @RabbitListener(queues = "${rabbit.config.queue}", ackMode = "MANUAL")
+    @RabbitListener(queues = "${rabbit.events.queues.review.name}", ackMode = "MANUAL")
     public void handle(CourseDeletedEvent payload, Message message, Channel channel) throws IOException {
         long tag = message.getMessageProperties().getDeliveryTag();
 

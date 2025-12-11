@@ -28,16 +28,17 @@ public class RabbitEventPublisherAdapter implements EventPublisherPort {
     @Override
     public void publish(DomainEvent event) {
         EventEnvelope<DomainEvent> envelope = EventEnvelope.wrap(event);
-        String routingKey = props.toRoutingKey(envelope.type());
+        String exchange = requireNonBlank(props.exchange(), "rabbit events exchange");
+        String routingKey = requireNonBlank(props.toRoutingKey(envelope.type()), "rabbit events routingKey");
         CorrelationData correlation = new CorrelationData(envelope.eventId().toString());
 
         try {
             template.convertAndSend(
-                    props.exchange(),
+                    exchange,
                     routingKey,
                     envelope.payload(),
                     msg -> {
-                        var mp = msg.getMessageProperties();
+                        MessageProperties mp = msg.getMessageProperties();
                         mp.setMessageId(envelope.eventId().toString());
                         mp.setTimestamp(Date.from(envelope.occurredAt()));
                         mp.setType(envelope.type());
@@ -52,6 +53,13 @@ public class RabbitEventPublisherAdapter implements EventPublisherPort {
         } catch (AmqpException ex) {
             throw new EventPublishException(event.toString(), ex);
         }
+    }
+
+    private String requireNonBlank(String value, String name) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalStateException(name + " is not configured");
+        }
+        return value;
     }
 
 }
