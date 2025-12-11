@@ -1,5 +1,6 @@
 package com.example.lxp.qna.adapter.out.external;
 
+import com.example.lxp.qna.adapter.out.external.dto.CourseInstructorCheckResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface CourseClient {
 
     @GetMapping("/api/courses/{courseId}")
-    Boolean isInstructor(
+    CourseInstructorCheckResponse isInstructor(
             @PathVariable Long courseId,
             @RequestParam Long instructorId
     );

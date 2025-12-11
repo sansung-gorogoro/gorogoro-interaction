@@ -1,8 +1,8 @@
 package com.example.lxp.review.adapter.out.external;
 
+import com.example.lxp.review.adapter.out.external.dto.EnrollmentCheckResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 )
 public interface EnrollmentClient {
 
-    @GetMapping("/api/enrollments/{courseId}")
-    Boolean isEnrolled(
-            @PathVariable Long courseId,
+    @GetMapping("/api/enrollments")
+    EnrollmentCheckResponse isEnrolled(
+            @RequestParam Long courseId,
             @RequestParam Long instructorId
     );
 
