@@ -1,22 +1,17 @@
 package com.example.lxp.qna.domain.event;
 
+import com.example.lxp.common.messaging.domain.model.DomainEvent;
 import com.example.lxp.qna.domain.model.Question;
 
-public class QuestionCreatedEvent {
+public record QuestionCreatedEvent(
 
-    private final Long questionId;
-    private final String threadId;
-    private final Long courseId;
-    private final Long lessonId;
-    private final Long authorId;
+        Long questionId,
+        String threadId,
+        Long courseId,
+        Long lessonId,
+        Long authorId
 
-    private QuestionCreatedEvent(Long questionId, String threadId, Long courseId, Long lessonId, Long authorId) {
-        this.questionId = questionId;
-        this.threadId = threadId;
-        this.courseId = courseId;
-        this.lessonId = lessonId;
-        this.authorId = authorId;
-    }
+) implements DomainEvent {
 
     public static QuestionCreatedEvent from(Question question) {
         return new QuestionCreatedEvent(
@@ -28,23 +23,14 @@ public class QuestionCreatedEvent {
         );
     }
 
-    public Long getQuestionId() {
-        return questionId;
+    @Override
+    public String type() {
+        return "";
     }
 
-    public String getThreadId() {
-        return threadId;
+    @Override
+    public String version() {
+        return DomainEvent.super.version();
     }
 
-    public Long getCourseId() {
-        return courseId;
-    }
-
-    public Long getLessonId() {
-        return lessonId;
-    }
-
-    public Long getAuthorId() {
-        return authorId;
-    }
 }

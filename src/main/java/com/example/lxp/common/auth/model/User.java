@@ -1,4 +1,4 @@
-package com.example.lxp.common.model;
+package com.example.lxp.common.auth.model;
 
 public record User(
         Long id,

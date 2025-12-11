@@ -112,7 +112,7 @@ public class Review {
             throw BusinessException.builder(ReviewErrorCode.REVIEW_COMMENT_IS_BLANK).build();
         }
         if (rating == null) {
-            throw BusinessException.builder(ReviewErrorCode.INVALID_REVIEW_RATING).build();
+            throw BusinessException.builder(ReviewErrorCode.REVIEW_RATING_IS_BLANK).build();
         }
     }
 
