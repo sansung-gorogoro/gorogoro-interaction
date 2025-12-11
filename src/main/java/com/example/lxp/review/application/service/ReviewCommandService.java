@@ -8,7 +8,7 @@ import com.example.lxp.review.application.port.in.dto.CreateReviewCommand;
 import com.example.lxp.review.application.port.in.dto.DeleteReviewCommand;
 import com.example.lxp.review.application.port.in.dto.DeleteReviewsByCourseCommand;
 import com.example.lxp.review.application.port.in.dto.UpdateReviewCommand;
-import com.example.lxp.review.application.port.out.CheckEnrollmentPort;
+import com.example.lxp.review.application.port.out.EnrollmentClientPort;
 import com.example.lxp.review.application.port.out.ReviewPersistencePort;
 import com.example.lxp.review.domain.event.CourseRatingUpdatedEvent;
 import com.example.lxp.review.domain.event.ReviewCreatedEvent;
@@ -25,16 +25,16 @@ import java.util.List;
 @Transactional
 public class ReviewCommandService implements ReviewCommandUseCase, ReviewIntegrationUseCase {
 
-    private final CheckEnrollmentPort checkEnrollmentPort;
+    private final EnrollmentClientPort enrollmentClientPort;
     private final ReviewPersistencePort reviewPersistencePort;
     private final EventPublisherPort eventPublisherPort;
 
     public ReviewCommandService(
-            CheckEnrollmentPort checkEnrollmentPort,
+            EnrollmentClientPort enrollmentClientPort,
             ReviewPersistencePort reviewPersistencePort,
             EventPublisherPort eventPublisherPort
     ) {
-        this.checkEnrollmentPort = checkEnrollmentPort;
+        this.enrollmentClientPort = enrollmentClientPort;
         this.reviewPersistencePort = reviewPersistencePort;
         this.eventPublisherPort = eventPublisherPort;
     }
@@ -42,7 +42,7 @@ public class ReviewCommandService implements ReviewCommandUseCase, ReviewIntegra
     @Override
     public void createReview(CreateReviewCommand command) {
         // EXTERNAL: OUTGOING
-        if (!checkEnrollmentPort.isEnrolled(command.user().id(), command.courseId())) {
+        if (!enrollmentClientPort.isEnrolled(command.courseId(), command.user().id())) {
             throw BusinessException.builder(ReviewErrorCode.USER_NOT_ENROLLED_IN_COURSE).build();
         }
         if (reviewPersistencePort.findByCourseIdAndAuthorId(command.user().id(), command.courseId()).isPresent()) {

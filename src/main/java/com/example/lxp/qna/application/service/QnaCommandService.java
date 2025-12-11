@@ -7,8 +7,8 @@ import com.example.lxp.qna.application.port.in.dto.AddAnswerCommand;
 import com.example.lxp.qna.application.port.in.dto.CreateQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.DeleteQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.UpdateQuestionCommand;
+import com.example.lxp.qna.application.port.out.CourseClientPort;
 import com.example.lxp.qna.application.port.out.QnaPersistencePort;
-import com.example.lxp.qna.application.port.out.VerifyInstructorPort;
 import com.example.lxp.qna.domain.event.QuestionCreatedEvent;
 import com.example.lxp.qna.domain.model.Question;
 import com.example.lxp.qna.exception.QnaErrorCode;
@@ -23,16 +23,16 @@ public class QnaCommandService implements QuestionCommandUseCase {
 
     private final QnaPersistencePort qnaPersistencePort;
     private final EventPublisherPort publishEventPort;
-    private final VerifyInstructorPort verifyInstructorPort;
+    private final CourseClientPort courseClientPort;
 
     public QnaCommandService(
             QnaPersistencePort qnaPersistencePort,
             EventPublisherPort publishEventPort,
-            VerifyInstructorPort verifyInstructorPort
+            CourseClientPort courseClientPort
     ) {
         this.qnaPersistencePort = qnaPersistencePort;
         this.publishEventPort = publishEventPort;
-        this.verifyInstructorPort = verifyInstructorPort;
+        this.courseClientPort = courseClientPort;
     }
 
     @Override
@@ -112,7 +112,7 @@ public class QnaCommandService implements QuestionCommandUseCase {
 
     private boolean canReply(Question rootQuestion, Long replierId) {
         boolean isRootAuthor = Objects.equals(rootQuestion.getAuthorId(), replierId);
-        boolean isInstructor = verifyInstructorPort.isInstructor(replierId);
+        boolean isInstructor = courseClientPort.isInstructor(rootQuestion.getCourseId(), replierId);
         return isRootAuthor || isInstructor;
     }
 
