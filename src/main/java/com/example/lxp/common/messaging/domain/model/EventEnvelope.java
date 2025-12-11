@@ -2,6 +2,7 @@ package com.example.lxp.common.messaging.domain.model;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,7 +35,7 @@ public record EventEnvelope<T extends DomainEvent>(
         if (additional == null || additional.isEmpty()) {
             return this;
         }
-        var merged = new java.util.HashMap<>(this.metadata());
+        var merged = new HashMap<>(this.metadata());
         merged.putAll(additional);
         return new EventEnvelope<>(eventId, occurredAt, payload, merged);
     }
