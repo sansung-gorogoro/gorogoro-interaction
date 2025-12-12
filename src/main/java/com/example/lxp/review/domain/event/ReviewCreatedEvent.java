@@ -11,6 +11,8 @@ public record ReviewCreatedEvent(
 
 ) implements DomainEvent {
 
+    public static final String TYPE = "review.created";
+
     public static ReviewCreatedEvent from(Review review) {
         return new ReviewCreatedEvent(
                 review.getId(),
@@ -21,7 +23,7 @@ public record ReviewCreatedEvent(
 
     @Override
     public String type() {
-        return "review.created";
+        return TYPE;
     }
 
     @Override

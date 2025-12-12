@@ -10,6 +10,8 @@ public record CourseRatingUpdatedEvent(
 
 ) implements DomainEvent {
 
+    public static final String TYPE = "review.course-rating.updated";
+
     public static CourseRatingUpdatedEvent of(
             Long courseId,
             double newAverageRating,
@@ -24,7 +26,7 @@ public record CourseRatingUpdatedEvent(
 
     @Override
     public String type() {
-        return "review.course-rating.updated";
+        return TYPE;
     }
 
     @Override

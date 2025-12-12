@@ -11,6 +11,8 @@ public record ReviewDeletedEvent(
 
 ) implements DomainEvent {
 
+    public static final String TYPE = "review.deleted";
+
     public static ReviewDeletedEvent from(Review review) {
         return new ReviewDeletedEvent(
                 review.getId(),
@@ -21,7 +23,7 @@ public record ReviewDeletedEvent(
 
     @Override
     public String type() {
-        return "review.deleted";
+        return TYPE;
     }
 
     @Override

@@ -13,6 +13,8 @@ public record QuestionCreatedEvent(
 
 ) implements DomainEvent {
 
+    public static final String TYPE = "question.created";
+
     public static QuestionCreatedEvent from(Question question) {
         return new QuestionCreatedEvent(
                 question.getId(),
@@ -25,7 +27,7 @@ public record QuestionCreatedEvent(
 
     @Override
     public String type() {
-        return "question.created";
+        return TYPE;
     }
 
     @Override
