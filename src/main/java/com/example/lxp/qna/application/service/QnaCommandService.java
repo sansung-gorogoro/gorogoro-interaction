@@ -79,7 +79,6 @@ public class QnaCommandService implements QuestionCommandUseCase {
 
         Question savedReply = qnaPersistencePort.save(reply);
         publishEventPort.publish(QuestionCreatedEvent.from(savedReply));
-
         return savedReply;
     }
 

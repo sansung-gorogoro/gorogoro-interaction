@@ -1,51 +1,53 @@
 package com.example.lxp.common.messaging.domain.model;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 
-public record EventEnvelope<T extends DomainEvent>(
-        UUID eventId,
-        Instant occurredAt,
-        T payload,
-        Map<String, String> metadata
-) {
-    /**
-     * **CAUTION**
-     * <p>
-     * DO NOT USE NATIVE CONSTRUCTOR OUTSIDE THE RECORD CLASS
-     * <p>
-     * Use {@code EventEnvelop.wrap()} factory method instead
-     */
-    public EventEnvelope {
-        Optional.ofNullable(eventId).orElseThrow(() -> new IllegalArgumentException("eventId is required"));
-        Optional.ofNullable(occurredAt).orElseThrow(() -> new IllegalArgumentException("occurredAt is required"));
-        Optional.ofNullable(payload).orElseThrow(() -> new IllegalArgumentException("payload is required"));
-        metadata = metadata == null ? Collections.emptyMap() : Map.copyOf(metadata);
+public class EventEnvelope<T> {
+
+    private String eventType;
+    private Instant occurredAt;
+    private Instant publishedAt;
+    private T payload;
+    private EventMetadata metadata;
+
+    public String getEventType() {
+        return eventType;
     }
 
-    public static <T extends DomainEvent> EventEnvelope<T> wrap(T payload) {
-        return new EventEnvelope<>(UUID.randomUUID(), Instant.now(), payload, Collections.emptyMap());
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
     }
 
-    public EventEnvelope<T> withMetadata(Map<String, String> additional) {
-        if (additional == null || additional.isEmpty()) {
-            return this;
-        }
-        HashMap<String, String> merged = new HashMap<>(this.metadata());
-        merged.putAll(additional);
-        return new EventEnvelope<>(eventId, occurredAt, payload, merged);
+    public Instant getOccurredAt() {
+        return occurredAt;
     }
 
-    public String type() {
-        return payload.type();
+    public void setOccurredAt(Instant occurredAt) {
+        this.occurredAt = occurredAt;
     }
 
-    public String version() {
-        return payload.version();
+    public Instant getPublishedAt() {
+        return publishedAt;
+    }
+
+    public void setPublishedAt(Instant publishedAt) {
+        this.publishedAt = publishedAt;
+    }
+
+    public T getPayload() {
+        return payload;
+    }
+
+    public void setPayload(T payload) {
+        this.payload = payload;
+    }
+
+    public EventMetadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(EventMetadata metadata) {
+        this.metadata = metadata;
     }
 
 }

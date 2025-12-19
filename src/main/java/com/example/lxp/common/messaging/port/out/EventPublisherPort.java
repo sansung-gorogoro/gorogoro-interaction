@@ -4,6 +4,8 @@ import com.example.lxp.common.messaging.domain.model.DomainEvent;
 
 public interface EventPublisherPort {
 
-    void publish(DomainEvent event);
+    <T extends DomainEvent> void publish(T payload);
+
+    <T extends DomainEvent> void publish(T payload, String traceId);
 
 }

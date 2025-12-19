@@ -2,10 +2,8 @@ package com.example.lxp.common.messaging.domain.model;
 
 public interface DomainEvent {
 
-    String type();
+    String getServicePrefix();
 
-    default String version() {
-        return "v1";
-    }
+    String getEventName();
 
 }
