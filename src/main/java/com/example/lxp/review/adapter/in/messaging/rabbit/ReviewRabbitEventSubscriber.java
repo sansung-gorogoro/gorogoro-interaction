@@ -1,13 +1,13 @@
 package com.example.lxp.review.adapter.in.messaging.rabbit;
 
-import com.example.lxp.exception.BusinessException;
+import com.example.lxp.common.messaging.domain.model.EventEnvelope;
 import com.example.lxp.review.adapter.in.messaging.rabbit.dto.CourseDeletedEvent;
+import com.example.lxp.review.adapter.in.messaging.rabbit.dto.UserDeletedEvent;
 import com.example.lxp.review.application.port.in.ReviewIntegrationUseCase;
-import com.example.lxp.review.application.port.in.dto.DeleteReviewsByCourseCommand;
-import com.example.lxp.review.exception.ReviewErrorCode;
 import com.rabbitmq.client.Channel;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -21,27 +21,34 @@ public class ReviewRabbitEventSubscriber {
         this.reviewIntegrationUseCase = reviewIntegrationUseCase;
     }
 
-    @RabbitListener(queues = "${rabbit.events.queues.review.name}", ackMode = "MANUAL")
-    public void handle(CourseDeletedEvent payload, Message message, Channel channel) throws IOException {
-        long tag = message.getMessageProperties().getDeliveryTag();
-
-        validate(payload);
-        DeleteReviewsByCourseCommand command = new DeleteReviewsByCourseCommand(payload.courseId());
-
+    @RabbitListener(queues = "${rabbit.services.review.queues.course-deleted.name}", ackMode = "MANUAL")
+    public void handleCourseDeleted(
+            @Payload EventEnvelope<CourseDeletedEvent> envelope,
+            Message message,
+            Channel channel
+    ) throws IOException {
+        long deliveryTag = message.getMessageProperties().getDeliveryTag();
         try {
-            reviewIntegrationUseCase.deleteReviewsByCourseId(command);
-            channel.basicAck(tag, false);
+            System.out.printf("Review Service consume: routingKey=%s messageId=%s traceId=%s%n",
+                    message.getMessageProperties().getReceivedRoutingKey(),
+                    envelope.getMetadata() != null ? envelope.getMetadata().getMessageId() : "n/a",
+                    envelope.getMetadata() != null ? envelope.getMetadata().getTraceId() : "n/a");
+            System.out.println(envelope.getPayload().toString());
+            channel.basicAck(deliveryTag, false);
         } catch (Exception e) {
-            // TODO: Logging, requeue, etc.
-            // 재큐(false)로 NACK → DLX로 이동 → DLQ에 도착
-            channel.basicNack(tag, false, true);
+            System.err.printf("Review Service handler error: %s%n", e.getMessage());
+            channel.basicNack(deliveryTag, false, false);
         }
+
     }
 
-    private void validate(CourseDeletedEvent payload) {
-        if (payload.courseId() == null) {
-            throw BusinessException.builder(ReviewErrorCode.EVENT_COURSE_ID_IS_BLANK).build();
-        }
+    @RabbitListener(queues = "${rabbit.services.review.queues.user-deleted.name}", ackMode = "MANUAL")
+    public void handleUserDeleted(
+            @Payload EventEnvelope<UserDeletedEvent> envelope,
+            Message message,
+            Channel channel
+    ) throws IOException {
+        // TODO: Implement
     }
 
 }

@@ -10,7 +10,6 @@ import com.example.lxp.review.application.port.in.dto.DeleteReviewsByCourseComma
 import com.example.lxp.review.application.port.in.dto.UpdateReviewCommand;
 import com.example.lxp.review.application.port.out.EnrollmentClientPort;
 import com.example.lxp.review.application.port.out.ReviewPersistencePort;
-import com.example.lxp.review.domain.event.CourseRatingUpdatedEvent;
 import com.example.lxp.review.domain.event.ReviewCreatedEvent;
 import com.example.lxp.review.domain.event.ReviewDeletedEvent;
 import com.example.lxp.review.domain.event.ReviewUpdatedEvent;
@@ -18,8 +17,6 @@ import com.example.lxp.review.domain.model.Review;
 import com.example.lxp.review.exception.ReviewErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional
@@ -58,7 +55,6 @@ public class ReviewCommandService implements ReviewCommandUseCase, ReviewIntegra
         Review savedReview = reviewPersistencePort.save(review);
 
         eventPublisherPort.publish(ReviewCreatedEvent.from(savedReview));
-        calculateAndPublishCourseRatingUpdate(command.courseId());
     }
 
     @Override
@@ -74,7 +70,6 @@ public class ReviewCommandService implements ReviewCommandUseCase, ReviewIntegra
         Review updatedReview = reviewPersistencePort.save(review);
 
         eventPublisherPort.publish(ReviewUpdatedEvent.from(updatedReview));
-        calculateAndPublishCourseRatingUpdate(command.courseId());
     }
 
     @Override
@@ -84,7 +79,6 @@ public class ReviewCommandService implements ReviewCommandUseCase, ReviewIntegra
         reviewPersistencePort.delete(review);
 
         eventPublisherPort.publish(ReviewDeletedEvent.from(review));
-        calculateAndPublishCourseRatingUpdate(command.courseId());
     }
 
     @Override
@@ -102,16 +96,6 @@ public class ReviewCommandService implements ReviewCommandUseCase, ReviewIntegra
             throw BusinessException.builder(ReviewErrorCode.REVIEW_COURSE_ID_MISMATCH).build();
         }
         return review;
-    }
-
-    private void calculateAndPublishCourseRatingUpdate(Long courseId) {
-        List<Review> reviews = reviewPersistencePort.findAllByCourseId(courseId);
-        long newReviewCount = reviews.size();
-        double newAverageRating = reviews.stream()
-                .mapToInt(review -> review.getRating().getStars())
-                .average()
-                .orElse(0.0);
-        eventPublisherPort.publish(new CourseRatingUpdatedEvent(courseId, newAverageRating, newReviewCount));
     }
 
 }
