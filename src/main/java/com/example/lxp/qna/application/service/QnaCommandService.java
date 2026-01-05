@@ -1,5 +1,7 @@
 package com.example.lxp.qna.application.service;
 
+import com.example.lxp.common.auth.model.Role;
+import com.example.lxp.common.auth.model.User;
 import com.example.lxp.common.messaging.port.out.EventPublisherPort;
 import com.example.lxp.exception.BusinessException;
 import com.example.lxp.qna.application.port.in.QuestionCommandUseCase;
@@ -8,6 +10,7 @@ import com.example.lxp.qna.application.port.in.dto.CreateQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.DeleteQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.UpdateQuestionCommand;
 import com.example.lxp.qna.application.port.out.CourseClientPort;
+import com.example.lxp.qna.application.port.out.EnrollmentClientPort;
 import com.example.lxp.qna.application.port.out.QnaPersistencePort;
 import com.example.lxp.qna.domain.event.QuestionCreatedEvent;
 import com.example.lxp.qna.domain.model.Question;
@@ -24,15 +27,18 @@ public class QnaCommandService implements QuestionCommandUseCase {
     private final QnaPersistencePort qnaPersistencePort;
     private final EventPublisherPort publishEventPort;
     private final CourseClientPort courseClientPort;
+    private final EnrollmentClientPort enrollmentClientPort;
 
     public QnaCommandService(
             QnaPersistencePort qnaPersistencePort,
             EventPublisherPort publishEventPort,
-            CourseClientPort courseClientPort
+            CourseClientPort courseClientPort,
+            EnrollmentClientPort enrollmentClientPort
     ) {
         this.qnaPersistencePort = qnaPersistencePort;
         this.publishEventPort = publishEventPort;
         this.courseClientPort = courseClientPort;
+        this.enrollmentClientPort = enrollmentClientPort;
     }
 
     @Override
@@ -40,7 +46,7 @@ public class QnaCommandService implements QuestionCommandUseCase {
         Question question = Question.createRoot(
                 command.courseId(),
                 command.lessonId(),
-                command.authorId(),
+                command.user().getId(),
                 command.title(),
                 command.comment()
         );
@@ -64,16 +70,14 @@ public class QnaCommandService implements QuestionCommandUseCase {
             throw BusinessException.builder(QnaErrorCode.CANNOT_REPLY_TO_REPLY).build();
         }
 
-        if (!canReply(parentQuestion, command.authorId())) {
-            throw BusinessException.builder(QnaErrorCode.FORBIDDEN_QUESTION_REPLY).build();
-        }
+        validateAnswerPermission(parentQuestion, command.user());
 
         Question reply = Question.createReply(
                 command.rootQuestionId(),
                 parentQuestion.getThreadId(),
                 command.courseId(),
                 command.lessonId(),
-                command.authorId(),
+                command.user().getId(),
                 command.content()
         );
 
@@ -87,11 +91,9 @@ public class QnaCommandService implements QuestionCommandUseCase {
         Question question = qnaPersistencePort.findById(command.questionId())
                 .orElseThrow(() -> BusinessException.builder(QnaErrorCode.QUESTION_NOT_FOUND).build());
 
-        question.update(
-                command.authorId(),
-                command.title(),
-                command.comment()
-        );
+        validateQuestionModification(question, command.user());
+
+        question.update(command.title(), command.comment());
 
         return qnaPersistencePort.save(question);
     }
@@ -101,7 +103,9 @@ public class QnaCommandService implements QuestionCommandUseCase {
         Question question = qnaPersistencePort.findById(command.questionId())
                 .orElseThrow(() -> BusinessException.builder(QnaErrorCode.QUESTION_NOT_FOUND).build());
 
-        question.delete(command.authorId());
+        validateQuestionModification(question, command.user());
+
+        question.delete();
         if (question.getRootId() == null) {
             qnaPersistencePort.deleteByThreadId(question.getThreadId());
         } else {
@@ -109,10 +113,29 @@ public class QnaCommandService implements QuestionCommandUseCase {
         }
     }
 
-    private boolean canReply(Question rootQuestion, Long replierId) {
-        boolean isRootAuthor = Objects.equals(rootQuestion.getAuthorId(), replierId);
-        boolean isInstructor = courseClientPort.isInstructor(rootQuestion.getCourseId(), replierId);
-        return isRootAuthor || isInstructor;
+    private void validateQuestionModification(Question question, User user) {
+        if (user.getRole() == Role.ADMIN) {
+            return;
+        }
+        if (!question.isAuthor(user.getId())) {
+            throw BusinessException.builder(QnaErrorCode.FORBIDDEN_QUESTION_MODIFICATION).build();
+        }
+    }
+
+    private void validateAnswerPermission(Question rootQuestion, User user) {
+        if (user.getRole() == Role.ADMIN) {
+            return;
+        }
+
+        boolean isInstructor = courseClientPort.isInstructor(rootQuestion.getCourseId(), user.getId());
+        if (isInstructor) {
+            return;
+        }
+
+        boolean isEnrolled = enrollmentClientPort.isEnrolled(rootQuestion.getCourseId(), user.getId());
+        if (!isEnrolled) {
+            throw BusinessException.builder(QnaErrorCode.FORBIDDEN_QUESTION_REPLY).build();
+        }
     }
 
 }

@@ -2,7 +2,18 @@ package com.example.lxp.qna.domain.model;
 
 import com.example.lxp.exception.BusinessException;
 import com.example.lxp.qna.exception.QnaErrorCode;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Lob;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -88,10 +99,7 @@ public class Question {
 
     // Business Logics ----------
 
-    public void update(Long userId, String title, String content) {
-        if (!isAuthor(userId)) {
-            throw BusinessException.builder(QnaErrorCode.FORBIDDEN_QUESTION_MODIFICATION).build();
-        }
+    public void update(String title, String content) {
         if (title != null && !title.isBlank()) {
             this.title = title;
         }
@@ -100,20 +108,12 @@ public class Question {
         }
     }
 
-    // Soft Delete 및 질문의 상태 변화 구현시 사용 예정
-    public void delete(Long userId) {
-        if (!isAuthor(userId)) {
-            throw BusinessException.builder(QnaErrorCode.FORBIDDEN_QUESTION_MODIFICATION).build();
-        }
+    public void delete() {
         this.status = QuestionStatus.DELETED;
     }
 
-    // MVP-002: 추후 업데이트로 질문의 상태 변화에 대한 코드 적용 예정
-    public void resolve(Long userId) {
-        if (!isAuthor(userId)) {
-            throw BusinessException.builder(QnaErrorCode.FORBIDDEN_QUESTION_MODIFICATION).build();
-        }
-        if (this.rootId != null) { // This question is a reply
+    public void resolve() {
+        if (this.rootId != null) {
             throw BusinessException.builder(QnaErrorCode.CANNOT_RESOLVE_REPLY).build();
         }
         this.status = QuestionStatus.RESOLVED;
@@ -121,7 +121,7 @@ public class Question {
 
     // Helper Methods ----------
 
-    private boolean isAuthor(Long userId) {
+    public boolean isAuthor(Long userId) {
         return Objects.equals(this.authorId, userId);
     }
 
