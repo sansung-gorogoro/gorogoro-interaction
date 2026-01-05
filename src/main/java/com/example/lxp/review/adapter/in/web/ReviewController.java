@@ -1,6 +1,5 @@
 package com.example.lxp.review.adapter.in.web;
 
-import com.example.lxp.common.auth.model.Role;
 import com.example.lxp.common.auth.model.User;
 import com.example.lxp.review.adapter.in.web.dto.CreateReviewRequest;
 import com.example.lxp.review.adapter.in.web.dto.UpdateReviewRequest;
@@ -47,7 +46,7 @@ public class ReviewController {
     ) {
         CreateReviewCommand command = new CreateReviewCommand(
                 courseId,
-                new User(userId, Role.valueOf(userRole)),
+                User.from(userId, userRole),
                 request.title(),
                 request.comment(),
                 Rating.of(request.stars())
@@ -67,7 +66,7 @@ public class ReviewController {
         UpdateReviewCommand command = new UpdateReviewCommand(
                 courseId,
                 reviewId,
-                new User(userId, Role.valueOf(userRole)),
+                User.from(userId, userRole),
                 request.title(),
                 request.comment(),
                 Rating.of(request.stars())
@@ -86,7 +85,7 @@ public class ReviewController {
         DeleteReviewCommand command = new DeleteReviewCommand(
                 courseId,
                 reviewId,
-                new User(userId, Role.valueOf(userRole))
+                User.from(userId, userRole)
         );
         reviewCommandUseCase.deleteReview(command);
         return ResponseEntity.noContent().build();
