@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 public enum WebErrorCode implements ErrorCode {
 
     VALIDATION_FAILED("WEB-0001", HttpStatus.BAD_REQUEST, "요청 필드 검증에 실패했습니다."),
-    TYPE_MISMATCH("WEB-0002", HttpStatus.BAD_REQUEST, "요청 파라미터 타입이 올바르지 않습니다."),
+    // TYPE_MISMATCH("WEB-0002", HttpStatus.BAD_REQUEST, "요청 파라미터 타입이 올바르지 않습니다."),
     MESSAGE_NOT_READABLE("WEB-0003", HttpStatus.BAD_REQUEST, "요청 본문을 읽을 수 없습니다."),
     PARAMETER_MISSING("WEB-0004", HttpStatus.BAD_REQUEST, "필수 요청 파라미터가 누락되었습니다."),
     PATH_VARIABLE_MISSING("WEB-0005", HttpStatus.BAD_REQUEST, "필수 경로 변수가 누락되었습니다."),
