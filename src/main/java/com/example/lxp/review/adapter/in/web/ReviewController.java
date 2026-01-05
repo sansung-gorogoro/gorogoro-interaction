@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReviewController {
 
     private static final String HEADER_USER_ID = "X-User-Id";
-    private static final String HEADER_USER_ROLE = "X-USER-Role";
+    private static final String HEADER_USER_ROLE = "X-User-Role";
 
     private final ReviewCommandUseCase reviewCommandUseCase;
 
