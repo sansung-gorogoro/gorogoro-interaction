@@ -42,7 +42,7 @@ public class ReviewCommandService implements ReviewCommandUseCase, ReviewIntegra
         if (!enrollmentClientPort.isEnrolled(command.courseId(), command.user().getId())) {
             throw BusinessException.builder(ReviewErrorCode.USER_NOT_ENROLLED_IN_COURSE).build();
         }
-        if (reviewPersistencePort.findByCourseIdAndAuthorId(command.user().getId(), command.courseId()).isPresent()) {
+        if (reviewPersistencePort.findByCourseIdAndAuthorId(command.courseId(), command.user().getId()).isPresent()) {
             throw BusinessException.builder(ReviewErrorCode.REVIEW_ALREADY_EXISTS).build();
         }
         Review review = Review.create(

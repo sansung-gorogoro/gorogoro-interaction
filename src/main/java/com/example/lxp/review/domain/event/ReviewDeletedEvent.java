@@ -6,7 +6,7 @@ import com.example.lxp.review.domain.model.Review;
 public class ReviewDeletedEvent implements DomainEvent {
 
     private static final String SERVICE_PREFIX = "review";
-    private static final String EVENT_NAME = "review-created";
+    private static final String EVENT_NAME = "review-deleted";
 
     private final long reviewId;
     private final long courseId;
