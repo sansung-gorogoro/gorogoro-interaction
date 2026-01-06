@@ -50,5 +50,10 @@ public class ReviewPersistenceAdapter implements ReviewPersistencePort {
     public void deleteAllByCourseId(Long courseId) {
         reviewRepository.deleteAllByCourseId(courseId);
     }
-    
+
+    @Override
+    public void deleteAllByAuthorId(Long authorId) {
+        reviewRepository.deleteAllByAuthorId(authorId);
+    }
+
 }
