@@ -39,14 +39,14 @@ public class ReviewCommandService implements ReviewCommandUseCase, ReviewIntegra
     @Override
     public void createReview(CreateReviewCommand command) {
         // EXTERNAL: OUTGOING
-        if (!enrollmentClientPort.isEnrolled(command.courseId(), command.user().id())) {
+        if (!enrollmentClientPort.isEnrolled(command.courseId(), command.user().getId())) {
             throw BusinessException.builder(ReviewErrorCode.USER_NOT_ENROLLED_IN_COURSE).build();
         }
-        if (reviewPersistencePort.findByCourseIdAndAuthorId(command.user().id(), command.courseId()).isPresent()) {
+        if (reviewPersistencePort.findByCourseIdAndAuthorId(command.courseId(), command.user().getId()).isPresent()) {
             throw BusinessException.builder(ReviewErrorCode.REVIEW_ALREADY_EXISTS).build();
         }
         Review review = Review.create(
-                command.user().id(),
+                command.user().getId(),
                 command.courseId(),
                 command.title(),
                 command.comment(),
@@ -59,10 +59,10 @@ public class ReviewCommandService implements ReviewCommandUseCase, ReviewIntegra
 
     @Override
     public void updateReview(UpdateReviewCommand command) {
-        Review review = findAndValidateReview(command.reviewId(), command.user().id(), command.courseId());
+        Review review = findAndValidateReview(command.reviewId(), command.user().getId(), command.courseId());
 
         review.update(
-                command.user().id(),
+                command.user().getId(),
                 command.title(),
                 command.comment(),
                 command.rating()
@@ -74,7 +74,7 @@ public class ReviewCommandService implements ReviewCommandUseCase, ReviewIntegra
 
     @Override
     public void deleteReview(DeleteReviewCommand command) {
-        Review review = findAndValidateReview(command.reviewId(), command.user().id(), command.courseId());
+        Review review = findAndValidateReview(command.reviewId(), command.user().getId(), command.courseId());
 
         reviewPersistencePort.delete(review);
 

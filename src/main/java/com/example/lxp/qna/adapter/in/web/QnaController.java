@@ -1,5 +1,6 @@
 package com.example.lxp.qna.adapter.in.web;
 
+import com.example.lxp.common.auth.model.User;
 import com.example.lxp.qna.adapter.in.web.dto.AddAnswerRequest;
 import com.example.lxp.qna.adapter.in.web.dto.CreateQuestionRequest;
 import com.example.lxp.qna.adapter.in.web.dto.UpdateQuestionRequest;
@@ -9,15 +10,28 @@ import com.example.lxp.qna.application.port.in.dto.CreateQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.DeleteQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.UpdateQuestionCommand;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+
+@Validated
 @RestController
 @RequestMapping("/api/courses/{courseId}/lessons/{lessonId}/qna")
 public class QnaController {
 
     private static final String HEADER_USER_ID = "X-User-Id";
+    private static final String HEADER_USER_ROLE = "X-User-Role";
 
     private final QuestionCommandUseCase questionCommandUseCase;
 
@@ -27,17 +41,19 @@ public class QnaController {
 
     @PostMapping
     public ResponseEntity<Void> createQuestion(
-            @PathVariable Long courseId,
-            @PathVariable Long lessonId,
+            @PathVariable @Positive Long courseId,
+            @PathVariable @Positive Long lessonId,
             @RequestBody @Valid CreateQuestionRequest body,
-            @RequestHeader(HEADER_USER_ID) Long userId
+            @RequestHeader(HEADER_USER_ID) @Positive Long userId,
+            @RequestHeader(HEADER_USER_ROLE) @NotNull String userRole
     ) {
+        User user = User.from(userId, userRole);
         CreateQuestionCommand command = new CreateQuestionCommand(
                 courseId,
                 lessonId,
                 body.title(),
                 body.content(),
-                userId
+                user
         );
         questionCommandUseCase.createQuestion(command);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -45,15 +61,17 @@ public class QnaController {
 
     @PostMapping("/{questionId}/replies")
     public ResponseEntity<Void> addAnswer(
-            @PathVariable Long courseId,
-            @PathVariable Long lessonId,
-            @PathVariable Long questionId,
+            @PathVariable @Positive Long courseId,
+            @PathVariable @Positive Long lessonId,
+            @PathVariable @Positive Long questionId,
             @RequestBody @Valid AddAnswerRequest body,
-            @RequestHeader(HEADER_USER_ID) Long userId
+            @RequestHeader(HEADER_USER_ID) @Positive Long userId,
+            @RequestHeader(HEADER_USER_ROLE) @NotNull String userRole
     ) {
+        User user = User.from(userId, userRole);
         AddAnswerCommand command = new AddAnswerCommand(
                 questionId,
-                userId,
+                user,
                 body.content(),
                 courseId,
                 lessonId
@@ -64,15 +82,17 @@ public class QnaController {
 
     @PatchMapping("/{questionId}")
     public ResponseEntity<Void> updateQuestion(
-            @PathVariable Long questionId,
+            @PathVariable @Positive Long questionId,
             @RequestBody UpdateQuestionRequest body,
-            @RequestHeader(HEADER_USER_ID) Long userId
+            @RequestHeader(HEADER_USER_ID) @Positive Long userId,
+            @RequestHeader(HEADER_USER_ROLE) @NotNull String userRole
     ) {
+        User user = User.from(userId, userRole);
         UpdateQuestionCommand command = new UpdateQuestionCommand(
                 questionId,
                 body.title(),
                 body.content(),
-                userId
+                user
         );
         questionCommandUseCase.updateQuestion(command);
         return ResponseEntity.ok().build();
@@ -80,12 +100,14 @@ public class QnaController {
 
     @DeleteMapping("/{questionId}")
     public ResponseEntity<Void> deleteQuestion(
-            @PathVariable Long questionId,
-            @RequestHeader(HEADER_USER_ID) Long userId
+            @PathVariable @Positive Long questionId,
+            @RequestHeader(HEADER_USER_ID) @Positive Long userId,
+            @RequestHeader(HEADER_USER_ROLE) @NotNull String userRole
     ) {
+        User user = User.from(userId, userRole);
         DeleteQuestionCommand command = new DeleteQuestionCommand(
                 questionId,
-                userId
+                user
         );
         questionCommandUseCase.deleteQuestion(command);
         return ResponseEntity.noContent().build();
