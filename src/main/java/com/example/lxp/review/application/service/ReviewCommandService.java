@@ -7,6 +7,7 @@ import com.example.lxp.review.application.port.in.ReviewIntegrationUseCase;
 import com.example.lxp.review.application.port.in.dto.CreateReviewCommand;
 import com.example.lxp.review.application.port.in.dto.DeleteReviewCommand;
 import com.example.lxp.review.application.port.in.dto.DeleteReviewsByCourseCommand;
+import com.example.lxp.review.application.port.in.dto.DeleteReviewsByUserCommand;
 import com.example.lxp.review.application.port.in.dto.UpdateReviewCommand;
 import com.example.lxp.review.application.port.out.EnrollmentClientPort;
 import com.example.lxp.review.application.port.out.ReviewPersistencePort;
@@ -84,6 +85,11 @@ public class ReviewCommandService implements ReviewCommandUseCase, ReviewIntegra
     @Override
     public void deleteReviewsByCourseId(DeleteReviewsByCourseCommand command) {
         reviewPersistencePort.deleteAllByCourseId(command.courseId());
+    }
+
+    @Override
+    public void deleteReviewsByAuthorId(DeleteReviewsByUserCommand command) {
+        reviewPersistencePort.deleteAllByAuthorId(command.authorId());
     }
 
     private Review findAndValidateReview(Long reviewId, Long authorId, Long courseId) {

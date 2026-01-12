@@ -21,4 +21,6 @@ public interface ReviewPersistencePort {
 
     void deleteAllByCourseId(Long courseId);
 
+    void deleteAllByAuthorId(Long authorId);
+
 }
