@@ -95,4 +95,9 @@ public class QnaPersistenceAdapter implements QnaPersistencePort {
         return qnaRepository.findAllRootQuestionsByCourseIdAndLessonId(courseId, lessonId, sort);
     }
 
+    @Override
+    public List<Question> findByThreadIdOrderByCreatedAtAscIdAsc(String threadId) {
+        return qnaRepository.findAllByThreadIdOrderByCreatedAtAscIdAsc(threadId);
+    }
+
 }

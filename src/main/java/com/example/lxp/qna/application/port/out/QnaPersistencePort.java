@@ -35,4 +35,6 @@ public interface QnaPersistencePort {
 
     List<Question> findRootQuestionsAllByLesson(Long courseId, Long lessonId, Sort sort);
 
+    List<Question> findByThreadIdOrderByCreatedAtAscIdAsc(String threadId);
+
 }

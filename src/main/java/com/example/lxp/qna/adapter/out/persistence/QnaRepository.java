@@ -47,4 +47,6 @@ public interface QnaRepository extends JpaRepository<Question, Long> {
             Sort sort
     );
 
+    List<Question> findAllByThreadIdOrderByCreatedAtAscIdAsc(String threadId);
+
 }
