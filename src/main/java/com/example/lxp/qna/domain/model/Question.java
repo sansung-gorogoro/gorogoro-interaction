@@ -49,6 +49,12 @@ public class Question {
     @Column(nullable = false)
     private Long authorId;
 
+    @Column(nullable = true)
+    private Long instructorId;
+
+    @Column(nullable = true)
+    private Instant lastActivityAt;
+
     // Content Fields ----------
 
     @Column(nullable = true)
@@ -74,27 +80,34 @@ public class Question {
 
     protected Question() {}
 
-    private Question(Long rootId, String threadId, Long courseId, Long lessonId, Long authorId, String title, String content) {
+    private Question(Long rootId, String threadId, Long courseId, Long lessonId, Long authorId,
+                     Long instructorId, String title, String content) {
         validate(title, content, rootId, threadId);
         this.rootId = rootId;
         this.threadId = threadId;
         this.courseId = courseId;
         this.lessonId = lessonId;
         this.authorId = authorId;
+        this.instructorId = instructorId;
         this.title = title;
         this.content = content;
-        this.status = QuestionStatus.OPENED;
+        if (rootId == null) {
+            this.status = QuestionStatus.OPENED;
+            this.lastActivityAt = Instant.now();
+        }
     }
 
     // Factory Methods ----------
 
-    public static Question createRoot(Long courseId, Long lessonId, Long authorId, String title, String content) {
+    public static Question createRoot(Long courseId, Long lessonId, Long authorId, Long instructorId,
+                                       String title, String content) {
         String threadId = UUID.randomUUID().toString();
-        return new Question(null, threadId, courseId, lessonId, authorId, title, content);
+        return new Question(null, threadId, courseId, lessonId, authorId, instructorId, title, content);
     }
 
-    public static Question createReply(Long rootId, String threadId, Long courseId, Long lessonId, Long authorId, String content) {
-        return new Question(rootId, threadId, courseId, lessonId, authorId, null, content);
+    public static Question createReply(Long rootId, String threadId, Long courseId, Long lessonId,
+                                        Long authorId, String content) {
+        return new Question(rootId, threadId, courseId, lessonId, authorId, null, null, content);
     }
 
     // Business Logics ----------
@@ -112,14 +125,29 @@ public class Question {
         this.status = QuestionStatus.DELETED;
     }
 
-    public void resolve() {
-        if (this.rootId != null) {
-            throw BusinessException.builder(QnaErrorCode.CANNOT_RESOLVE_REPLY).build();
-        }
-        this.status = QuestionStatus.RESOLVED;
+    public void markAsAnswered() {
+        this.status = QuestionStatus.ANSWERED;
+        this.lastActivityAt = Instant.now();
+    }
+
+    public void reopen() {
+        this.status = QuestionStatus.OPENED;
+        this.lastActivityAt = Instant.now();
+    }
+
+    public void updateLastActivity() {
+        this.lastActivityAt = Instant.now();
     }
 
     // Helper Methods ----------
+
+    public boolean isRoot() {
+        return this.rootId == null;
+    }
+
+    public boolean isInstructor(Long userId) {
+        return Objects.equals(this.instructorId, userId);
+    }
 
     public boolean isAuthor(Long userId) {
         return Objects.equals(this.authorId, userId);
@@ -192,6 +220,14 @@ public class Question {
 
     public QuestionStatus getStatus() {
         return status;
+    }
+
+    public Long getInstructorId() {
+        return instructorId;
+    }
+
+    public Instant getLastActivityAt() {
+        return lastActivityAt;
     }
 
 }

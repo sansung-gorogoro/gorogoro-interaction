@@ -43,10 +43,13 @@ public class QnaCommandService implements QuestionCommandUseCase {
 
     @Override
     public Question createQuestion(CreateQuestionCommand command) {
+        Long instructorId = courseClientPort.getInstructorId(command.courseId());
+
         Question question = Question.createRoot(
                 command.courseId(),
                 command.lessonId(),
                 command.user().getId(),
+                instructorId,
                 command.title(),
                 command.comment()
         );
@@ -58,29 +61,37 @@ public class QnaCommandService implements QuestionCommandUseCase {
 
     @Override
     public Question addAnswer(AddAnswerCommand command) {
-        Question parentQuestion = qnaPersistencePort.findById(command.rootQuestionId())
+        Question rootQuestion = qnaPersistencePort.findById(command.rootQuestionId())
                 .orElseThrow(() -> BusinessException.builder(QnaErrorCode.QUESTION_NOT_FOUND).build());
 
-        if (!Objects.equals(parentQuestion.getCourseId(), command.courseId())
-                || !Objects.equals(parentQuestion.getLessonId(), command.lessonId())) {
+        if (!Objects.equals(rootQuestion.getCourseId(), command.courseId())
+                || !Objects.equals(rootQuestion.getLessonId(), command.lessonId())) {
             throw BusinessException.builder(QnaErrorCode.QUESTION_CONTEXT_MISMATCH).build();
         }
 
-        if (parentQuestion.getRootId() != null) {
+        if (!rootQuestion.isRoot()) {
             throw BusinessException.builder(QnaErrorCode.CANNOT_REPLY_TO_REPLY).build();
         }
 
-        validateAnswerPermission(parentQuestion, command.user());
+        validateAnswerPermission(rootQuestion, command.user());
 
         Question reply = Question.createReply(
                 command.rootQuestionId(),
-                parentQuestion.getThreadId(),
+                rootQuestion.getThreadId(),
                 command.courseId(),
                 command.lessonId(),
                 command.user().getId(),
                 command.content()
         );
 
+        boolean isInstructorReply = rootQuestion.isInstructor(command.user().getId());
+        if (isInstructorReply) {
+            rootQuestion.markAsAnswered();
+        } else {
+            rootQuestion.reopen();
+        }
+
+        qnaPersistencePort.save(rootQuestion);
         Question savedReply = qnaPersistencePort.save(reply);
         publishEventPort.publish(QuestionCreatedEvent.from(savedReply));
         return savedReply;
@@ -127,8 +138,7 @@ public class QnaCommandService implements QuestionCommandUseCase {
             return;
         }
 
-        boolean isInstructor = courseClientPort.isInstructor(rootQuestion.getCourseId(), user.getId());
-        if (isInstructor) {
+        if (rootQuestion.isInstructor(user.getId())) {
             return;
         }
 
