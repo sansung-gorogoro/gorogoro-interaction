@@ -106,7 +106,16 @@ public class QnaCommandService implements QuestionCommandUseCase {
 
         question.update(command.title(), command.comment());
 
-        return qnaPersistencePort.save(question);
+        if (question.isRoot()) {
+            question.updateLastActivity();
+            return qnaPersistencePort.save(question);
+        } else {
+            Question rootQuestion = qnaPersistencePort.findById(question.getRootId())
+                    .orElseThrow(() -> BusinessException.builder(QnaErrorCode.QUESTION_NOT_FOUND).build());
+            rootQuestion.updateLastActivity();
+            qnaPersistencePort.save(rootQuestion);
+            return qnaPersistencePort.save(question);
+        }
     }
 
     @Override
