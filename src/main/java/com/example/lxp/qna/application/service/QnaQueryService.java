@@ -4,9 +4,11 @@ import com.example.lxp.common.auth.model.Role;
 import com.example.lxp.common.auth.model.User;
 import com.example.lxp.exception.BusinessException;
 import com.example.lxp.qna.adapter.in.web.dto.LessonQuestionItem;
+import com.example.lxp.qna.adapter.in.web.dto.LessonQuestionsAllResponse;
 import com.example.lxp.qna.adapter.in.web.dto.LessonQuestionsResponse;
 import com.example.lxp.qna.adapter.in.web.dto.QuestionThreadItemResponse;
 import com.example.lxp.qna.adapter.in.web.dto.QuestionThreadResponse;
+import com.example.lxp.qna.adapter.in.web.dto.UnansweredQuestionsResponse;
 import com.example.lxp.qna.application.port.in.QuestionQueryUseCase;
 import com.example.lxp.qna.application.port.in.dto.GetLessonQuestionsQuery;
 import com.example.lxp.qna.application.port.in.dto.GetQnaThreadQuery;
@@ -23,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
-
 @Service
 @Transactional(readOnly = true)
 public class QnaQueryService implements QuestionQueryUseCase {
@@ -37,14 +38,15 @@ public class QnaQueryService implements QuestionQueryUseCase {
     }
 
     @Override
-    public List<Question> findUnansweredQuestionsForInstructor(GetUnansweredQuestionsQuery query) {
-
+    public UnansweredQuestionsResponse findUnansweredQuestionsForInstructor(GetUnansweredQuestionsQuery query) {
         validateInstructorRole(query.user());
 
-        return qnaPersistencePort.findOpenedRootQuestionsByInstructorId(
+        List<Question> questions = qnaPersistencePort.findOpenedRootQuestionsByInstructorId(
                 query.user().getId(),
                 query.limit() == null ? DEFAULT_UNANSWERED_QUESTIONS_QUERY_SIZE : Math.min(query.limit(), 10)
         );
+
+        return UnansweredQuestionsResponse.from(questions);
     }
 
     @Override
@@ -69,7 +71,7 @@ public class QnaQueryService implements QuestionQueryUseCase {
     }
 
     @Override
-    public List<LessonQuestionItem> findLessonRootQuestionsAll(Long courseId, Long lessonId) {
+    public LessonQuestionsAllResponse findLessonRootQuestionsAll(Long courseId, Long lessonId) {
         Sort sort = Sort.by("lastActivityAt").descending()
                 .and(Sort.by("id").descending());
 
@@ -81,9 +83,11 @@ public class QnaQueryService implements QuestionQueryUseCase {
 
         Map<Long, Long> replyCounts = qnaPersistencePort.countRepliesByRootIds(rootIds);
 
-        return roots.stream()
+        List<LessonQuestionItem> items = roots.stream()
                 .map(q -> LessonQuestionItem.from(q, replyCounts.getOrDefault(q.getId(), 0L)))
                 .toList();
+
+        return LessonQuestionsAllResponse.of(items);
     }
 
     @Override
@@ -103,25 +107,10 @@ public class QnaQueryService implements QuestionQueryUseCase {
         }
 
         List<QuestionThreadItemResponse> items = questions.stream()
-                .map(q -> new QuestionThreadItemResponse(
-                        q.getId(),
-                        q.isRoot(),
-                        q.getTitle(),
-                        q.getContent(),
-                        q.getAuthorId(),
-                        q.getCreatedAt()
-                ))
+                .map(QuestionThreadItemResponse::from)
                 .toList();
 
-        return new QuestionThreadResponse(
-                root.getThreadId(),
-                root.getCourseId(),
-                root.getLessonId(),
-                root.getInstructorId(),
-                root.getStatus(),
-                root.getLastActivityAt(),
-                items
-        );
+        return QuestionThreadResponse.of(root, items);
     }
 
     private void validateInstructorRole(User user) {

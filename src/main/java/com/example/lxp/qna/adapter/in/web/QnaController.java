@@ -3,7 +3,6 @@ package com.example.lxp.qna.adapter.in.web;
 import com.example.lxp.common.auth.model.User;
 import com.example.lxp.qna.adapter.in.web.dto.AddAnswerRequest;
 import com.example.lxp.qna.adapter.in.web.dto.CreateQuestionRequest;
-import com.example.lxp.qna.adapter.in.web.dto.LessonQuestionItem;
 import com.example.lxp.qna.adapter.in.web.dto.LessonQuestionsAllResponse;
 import com.example.lxp.qna.adapter.in.web.dto.LessonQuestionsResponse;
 import com.example.lxp.qna.adapter.in.web.dto.QuestionThreadResponse;
@@ -33,8 +32,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @Validated
 @RestController
@@ -68,8 +65,7 @@ public class QnaController {
             @PathVariable @Positive Long courseId,
             @PathVariable @Positive Long lessonId
     ) {
-        List<LessonQuestionItem> questions = questionQueryUseCase.findLessonRootQuestionsAll(courseId, lessonId);
-        return ResponseEntity.ok(new LessonQuestionsAllResponse(questions));
+        return ResponseEntity.ok(questionQueryUseCase.findLessonRootQuestionsAll(courseId, lessonId));
     }
 
     /**
