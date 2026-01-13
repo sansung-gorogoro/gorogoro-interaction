@@ -2,6 +2,7 @@ package com.example.lxp.review.adapter.out.persistence;
 
 import com.example.lxp.review.application.port.out.ReviewPersistencePort;
 import com.example.lxp.review.domain.model.Review;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -34,6 +35,11 @@ public class ReviewPersistenceAdapter implements ReviewPersistencePort {
     @Override
     public List<Review> findAllByCourseId(Long courseId) {
         return reviewRepository.findByCourseId(courseId);
+    }
+
+    @Override
+    public List<Review> findAllByCourseId(Long courseId, Sort sort) {
+        return reviewRepository.findByCourseId(courseId, sort);
     }
 
     @Override
