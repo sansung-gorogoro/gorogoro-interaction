@@ -116,7 +116,6 @@ public class QnaCommandService implements QuestionCommandUseCase {
 
         validateQuestionModification(question, command.user());
 
-        question.delete();
         if (question.getRootId() == null) {
             qnaPersistencePort.deleteByThreadId(question.getThreadId());
         } else {
