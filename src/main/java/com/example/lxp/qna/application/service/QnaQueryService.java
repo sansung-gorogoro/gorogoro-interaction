@@ -64,6 +64,24 @@ public class QnaQueryService implements QuestionQueryUseCase {
         return LessonQuestionsResponse.from(questionPage, replyCounts);
     }
 
+    @Override
+    public List<LessonQuestionItem> findLessonRootQuestionsAll(Long courseId, Long lessonId) {
+        Sort sort = Sort.by("lastActivityAt").descending()
+                .and(Sort.by("id").descending());
+
+        List<Question> roots = qnaPersistencePort.findRootQuestionsAllByLesson(courseId, lessonId, sort);
+
+        List<Long> rootIds = roots.stream()
+                .map(Question::getId)
+                .toList();
+
+        Map<Long, Long> replyCounts = qnaPersistencePort.countRepliesByRootIds(rootIds);
+
+        return roots.stream()
+                .map(q -> LessonQuestionItem.from(q, replyCounts.getOrDefault(q.getId(), 0L)))
+                .toList();
+    }
+
     private void validateInstructorRole(User user) {
         if (user.getRole() != Role.INSTRUCTOR) {
             throw BusinessException.builder(QnaErrorCode.FORBIDDEN_INSTRUCTOR_ONLY).build();

@@ -56,6 +56,21 @@ public class QnaController {
     }
 
     /**
+     * [TEMP] 전체 root 질문 목록 반환 (pagination 미적용)
+     * - 프론트 요청으로 pagination 없이 전체 리스트 반환
+     * - 정렬: lastActivityAt DESC, id DESC
+     * - Date: 2026-01-13
+     */
+    @GetMapping
+    public ResponseEntity<LessonQuestionsAllResponse> getQuestionsAll(
+            @PathVariable @Positive Long courseId,
+            @PathVariable @Positive Long lessonId
+    ) {
+        List<LessonQuestionItem> questions = questionQueryUseCase.findLessonRootQuestionsAll(courseId, lessonId);
+        return ResponseEntity.ok(new LessonQuestionsAllResponse(questions));
+    }
+
+    /**
      * [PRESERVED] Pagination 적용 root 질문 목록 조회
      * - 프론트 요청으로 pagination 연결 해제 (데모 우선)
      * - 메서드 삭제하지 말 것: pagination.md 기반 구현을 다음 MVP에서 복구하기 위함
