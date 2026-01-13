@@ -2,8 +2,10 @@ package com.example.lxp.review.adapter.in.web;
 
 import com.example.lxp.common.auth.model.User;
 import com.example.lxp.review.adapter.in.web.dto.CreateReviewRequest;
+import com.example.lxp.review.adapter.in.web.dto.ReviewListResponse;
 import com.example.lxp.review.adapter.in.web.dto.UpdateReviewRequest;
 import com.example.lxp.review.application.port.in.ReviewCommandUseCase;
+import com.example.lxp.review.application.port.in.ReviewQueryUseCase;
 import com.example.lxp.review.application.port.in.dto.CreateReviewCommand;
 import com.example.lxp.review.application.port.in.dto.DeleteReviewCommand;
 import com.example.lxp.review.application.port.in.dto.UpdateReviewCommand;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -32,9 +35,21 @@ public class ReviewController {
     private static final String HEADER_USER_ROLE = "X-User-Role";
 
     private final ReviewCommandUseCase reviewCommandUseCase;
+    private final ReviewQueryUseCase reviewQueryUseCase;
 
-    public ReviewController(ReviewCommandUseCase reviewCommandUseCase) {
+    public ReviewController(
+            ReviewCommandUseCase reviewCommandUseCase,
+            ReviewQueryUseCase reviewQueryUseCase
+    ) {
         this.reviewCommandUseCase = reviewCommandUseCase;
+        this.reviewQueryUseCase = reviewQueryUseCase;
+    }
+
+    @GetMapping
+    public ResponseEntity<ReviewListResponse> getReviews(
+            @PathVariable @Positive Long courseId
+    ) {
+        return ResponseEntity.ok(reviewQueryUseCase.getReviewsByCourseId(courseId));
     }
 
     @PostMapping
