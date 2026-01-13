@@ -2,7 +2,9 @@ package com.example.lxp.qna.application.port.in;
 
 import com.example.lxp.qna.adapter.in.web.dto.LessonQuestionItem;
 import com.example.lxp.qna.adapter.in.web.dto.LessonQuestionsResponse;
+import com.example.lxp.qna.adapter.in.web.dto.QuestionThreadResponse;
 import com.example.lxp.qna.application.port.in.dto.GetLessonQuestionsQuery;
+import com.example.lxp.qna.application.port.in.dto.GetQnaThreadQuery;
 import com.example.lxp.qna.application.port.in.dto.GetUnansweredQuestionsQuery;
 import com.example.lxp.qna.domain.model.Question;
 
@@ -15,5 +17,7 @@ public interface QuestionQueryUseCase {
     LessonQuestionsResponse findLessonRootQuestions(GetLessonQuestionsQuery query);
 
     List<LessonQuestionItem> findLessonRootQuestionsAll(Long courseId, Long lessonId);
+
+    QuestionThreadResponse getThread(GetQnaThreadQuery query);
 
 }

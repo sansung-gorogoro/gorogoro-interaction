@@ -5,8 +5,11 @@ import com.example.lxp.common.auth.model.User;
 import com.example.lxp.exception.BusinessException;
 import com.example.lxp.qna.adapter.in.web.dto.LessonQuestionItem;
 import com.example.lxp.qna.adapter.in.web.dto.LessonQuestionsResponse;
+import com.example.lxp.qna.adapter.in.web.dto.QuestionThreadItemResponse;
+import com.example.lxp.qna.adapter.in.web.dto.QuestionThreadResponse;
 import com.example.lxp.qna.application.port.in.QuestionQueryUseCase;
 import com.example.lxp.qna.application.port.in.dto.GetLessonQuestionsQuery;
+import com.example.lxp.qna.application.port.in.dto.GetQnaThreadQuery;
 import com.example.lxp.qna.application.port.in.dto.GetUnansweredQuestionsQuery;
 import com.example.lxp.qna.application.port.out.QnaPersistencePort;
 import com.example.lxp.qna.domain.model.Question;
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+
 
 @Service
 @Transactional(readOnly = true)
@@ -80,6 +84,44 @@ public class QnaQueryService implements QuestionQueryUseCase {
         return roots.stream()
                 .map(q -> LessonQuestionItem.from(q, replyCounts.getOrDefault(q.getId(), 0L)))
                 .toList();
+    }
+
+    @Override
+    public QuestionThreadResponse getThread(GetQnaThreadQuery query) {
+        Question question = qnaPersistencePort.findById(query.questionId())
+                .orElseThrow(() -> BusinessException.builder(QnaErrorCode.QUESTION_NOT_FOUND).build());
+
+        List<Question> questions = qnaPersistencePort.findByThreadIdOrderByCreatedAtAscIdAsc(question.getThreadId());
+
+        Question root = questions.stream()
+                .filter(Question::isRoot)
+                .findFirst()
+                .orElseThrow(() -> BusinessException.builder(QnaErrorCode.QUESTION_NOT_FOUND).build());
+
+        if (!root.getCourseId().equals(query.courseId()) || !root.getLessonId().equals(query.lessonId())) {
+            throw BusinessException.builder(QnaErrorCode.QUESTION_NOT_FOUND).build();
+        }
+
+        List<QuestionThreadItemResponse> items = questions.stream()
+                .map(q -> new QuestionThreadItemResponse(
+                        q.getId(),
+                        q.isRoot(),
+                        q.getTitle(),
+                        q.getContent(),
+                        q.getAuthorId(),
+                        q.getCreatedAt()
+                ))
+                .toList();
+
+        return new QuestionThreadResponse(
+                root.getThreadId(),
+                root.getCourseId(),
+                root.getLessonId(),
+                root.getInstructorId(),
+                root.getStatus(),
+                root.getLastActivityAt(),
+                items
+        );
     }
 
     private void validateInstructorRole(User user) {

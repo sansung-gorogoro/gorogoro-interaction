@@ -6,6 +6,7 @@ import com.example.lxp.qna.adapter.in.web.dto.CreateQuestionRequest;
 import com.example.lxp.qna.adapter.in.web.dto.LessonQuestionItem;
 import com.example.lxp.qna.adapter.in.web.dto.LessonQuestionsAllResponse;
 import com.example.lxp.qna.adapter.in.web.dto.LessonQuestionsResponse;
+import com.example.lxp.qna.adapter.in.web.dto.QuestionThreadResponse;
 import com.example.lxp.qna.adapter.in.web.dto.UpdateQuestionRequest;
 import com.example.lxp.qna.application.port.in.QuestionCommandUseCase;
 import com.example.lxp.qna.application.port.in.QuestionQueryUseCase;
@@ -13,6 +14,7 @@ import com.example.lxp.qna.application.port.in.dto.AddAnswerCommand;
 import com.example.lxp.qna.application.port.in.dto.CreateQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.DeleteQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.GetLessonQuestionsQuery;
+import com.example.lxp.qna.application.port.in.dto.GetQnaThreadQuery;
 import com.example.lxp.qna.application.port.in.dto.UpdateQuestionCommand;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -89,6 +91,16 @@ public class QnaController {
         GetLessonQuestionsQuery query = new GetLessonQuestionsQuery(courseId, lessonId, page, effectiveSize);
         LessonQuestionsResponse response = questionQueryUseCase.findLessonRootQuestions(query);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{questionId}/thread")
+    public ResponseEntity<QuestionThreadResponse> getThread(
+            @PathVariable @Positive Long courseId,
+            @PathVariable @Positive Long lessonId,
+            @PathVariable @Positive Long questionId
+    ) {
+        GetQnaThreadQuery query = new GetQnaThreadQuery(courseId, lessonId, questionId);
+        return ResponseEntity.ok(questionQueryUseCase.getThread(query));
     }
 
     @PostMapping
