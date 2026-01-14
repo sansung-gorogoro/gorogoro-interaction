@@ -1,8 +1,12 @@
 package com.example.lxp.qna.application.port.out;
 
 import com.example.lxp.qna.domain.model.Question;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface QnaPersistencePort {
@@ -24,5 +28,13 @@ public interface QnaPersistencePort {
     void deleteAllByAuthorId(Long authorId);
 
     List<Question> findOpenedRootQuestionsByInstructorId(Long instructorId, int limit);
+
+    Page<Question> findRootQuestionsByLesson(Long courseId, Long lessonId, Pageable pageable);
+
+    Map<Long, Long> countRepliesByRootIds(List<Long> rootIds);
+
+    List<Question> findRootQuestionsAllByLesson(Long courseId, Long lessonId, Sort sort);
+
+    List<Question> findByThreadIdOrderByCreatedAtAscIdAsc(String threadId);
 
 }

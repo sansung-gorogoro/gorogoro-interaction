@@ -9,23 +9,23 @@ import java.time.Instant;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class UnansweredQuestionResponse {
+public class QuestionThreadItemResponse {
 
     private final Long questionId;
-    private final Long courseId;
-    private final Long lessonId;
+    private final boolean isRoot;
     private final String title;
+    private final String content;
     private final Long authorId;
-    private final Instant lastActivityAt;
+    private final Instant createdAt;
 
-    public static UnansweredQuestionResponse from(Question question) {
-        return new UnansweredQuestionResponse(
+    public static QuestionThreadItemResponse from(Question question) {
+        return new QuestionThreadItemResponse(
                 question.getId(),
-                question.getCourseId(),
-                question.getLessonId(),
+                question.isRoot(),
                 question.getTitle(),
+                question.getContent(),
                 question.getAuthorId(),
-                question.getLastActivityAt()
+                question.getCreatedAt()
         );
     }
 

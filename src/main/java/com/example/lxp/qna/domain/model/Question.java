@@ -121,10 +121,6 @@ public class Question {
         }
     }
 
-    public void delete() {
-        this.status = QuestionStatus.DELETED;
-    }
-
     public void markAsAnswered() {
         this.status = QuestionStatus.ANSWERED;
         this.lastActivityAt = Instant.now();
