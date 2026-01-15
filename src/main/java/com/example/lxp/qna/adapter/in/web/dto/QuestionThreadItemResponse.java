@@ -16,15 +16,17 @@ public class QuestionThreadItemResponse {
     private final String title;
     private final String content;
     private final Long authorId;
+    private final String authorNickname;
     private final Instant createdAt;
 
-    public static QuestionThreadItemResponse from(Question question) {
+    public static QuestionThreadItemResponse from(Question question, String authorNickname) {
         return new QuestionThreadItemResponse(
                 question.getId(),
                 question.isRoot(),
                 question.getTitle(),
                 question.getContent(),
                 question.getAuthorId(),
+                authorNickname,
                 question.getCreatedAt()
         );
     }

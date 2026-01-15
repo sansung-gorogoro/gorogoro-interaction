@@ -21,11 +21,17 @@ public class LessonQuestionsResponse {
     private final boolean hasNext;
     private final boolean hasPrevious;
 
-    public static LessonQuestionsResponse from(Page<Question> questionPage, Map<Long, Long> replyCounts) {
+    public static LessonQuestionsResponse from(
+            Page<Question> questionPage,
+            Map<Long, Long> replyCounts,
+            Map<Long, String> nicknameMap,
+            String unknownNickname
+    ) {
         List<LessonQuestionItem> items = questionPage.getContent().stream()
                 .map(question -> LessonQuestionItem.from(
                         question,
-                        replyCounts.getOrDefault(question.getId(), 0L)
+                        replyCounts.getOrDefault(question.getId(), 0L),
+                        nicknameMap.getOrDefault(question.getAuthorId(), unknownNickname)
                 ))
                 .toList();
 

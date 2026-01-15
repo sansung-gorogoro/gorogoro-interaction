@@ -16,15 +16,17 @@ public class UnansweredQuestionResponse {
     private final Long lessonId;
     private final String title;
     private final Long authorId;
+    private final String authorNickname;
     private final Instant lastActivityAt;
 
-    public static UnansweredQuestionResponse from(Question question) {
+    public static UnansweredQuestionResponse from(Question question, String authorNickname) {
         return new UnansweredQuestionResponse(
                 question.getId(),
                 question.getCourseId(),
                 question.getLessonId(),
                 question.getTitle(),
                 question.getAuthorId(),
+                authorNickname,
                 question.getLastActivityAt()
         );
     }

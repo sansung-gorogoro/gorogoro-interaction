@@ -17,17 +17,19 @@ public class LessonQuestionItem {
     private final Long lessonId;
     private final String title;
     private final Long authorId;
+    private final String authorNickname;
     private final QuestionStatus status;
     private final Long replyCount;
     private final Instant lastActivityAt;
 
-    public static LessonQuestionItem from(Question question, Long replyCount) {
+    public static LessonQuestionItem from(Question question, Long replyCount, String authorNickname) {
         return new LessonQuestionItem(
                 question.getId(),
                 question.getCourseId(),
                 question.getLessonId(),
                 question.getTitle(),
                 question.getAuthorId(),
+                authorNickname,
                 question.getStatus(),
                 replyCount,
                 question.getLastActivityAt()
