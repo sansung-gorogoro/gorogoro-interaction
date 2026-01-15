@@ -9,7 +9,7 @@ import com.example.lxp.review.application.port.in.dto.DeleteReviewCommand;
 import com.example.lxp.review.application.port.in.dto.DeleteReviewsByCourseCommand;
 import com.example.lxp.review.application.port.in.dto.DeleteReviewsByUserCommand;
 import com.example.lxp.review.application.port.in.dto.UpdateReviewCommand;
-import com.example.lxp.review.application.port.out.EnrollmentClientPort;
+import com.example.lxp.review.application.port.out.ReviewEnrollmentClientPort;
 import com.example.lxp.review.application.port.out.ReviewPersistencePort;
 import com.example.lxp.review.domain.event.ReviewCreatedEvent;
 import com.example.lxp.review.domain.event.ReviewDeletedEvent;
@@ -23,12 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ReviewCommandService implements ReviewCommandUseCase, ReviewIntegrationUseCase {
 
-    private final EnrollmentClientPort enrollmentClientPort;
+    private final ReviewEnrollmentClientPort enrollmentClientPort;
     private final ReviewPersistencePort reviewPersistencePort;
     private final EventPublisherPort eventPublisherPort;
 
     public ReviewCommandService(
-            EnrollmentClientPort enrollmentClientPort,
+            ReviewEnrollmentClientPort enrollmentClientPort,
             ReviewPersistencePort reviewPersistencePort,
             EventPublisherPort eventPublisherPort
     ) {

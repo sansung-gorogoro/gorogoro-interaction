@@ -4,7 +4,7 @@ import com.example.lxp.review.adapter.in.web.dto.ReviewItemResponse;
 import com.example.lxp.review.adapter.in.web.dto.ReviewListResponse;
 import com.example.lxp.review.application.port.in.ReviewQueryUseCase;
 import com.example.lxp.review.application.port.out.ReviewPersistencePort;
-import com.example.lxp.review.application.port.out.UserClientPort;
+import com.example.lxp.review.application.port.out.ReviewUserClientPort;
 import com.example.lxp.review.domain.model.Review;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -25,11 +25,11 @@ public class ReviewQueryService implements ReviewQueryUseCase {
     private static final String UNKNOWN_NICKNAME = "알 수 없음";
 
     private final ReviewPersistencePort reviewPersistencePort;
-    private final UserClientPort userClientPort;
+    private final ReviewUserClientPort userClientPort;
 
     public ReviewQueryService(
             ReviewPersistencePort reviewPersistencePort,
-            UserClientPort userClientPort
+            ReviewUserClientPort userClientPort
     ) {
         this.reviewPersistencePort = reviewPersistencePort;
         this.userClientPort = userClientPort;
