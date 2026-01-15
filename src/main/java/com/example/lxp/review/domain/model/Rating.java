@@ -21,7 +21,10 @@ public class Rating {
     }
 
     public static Rating of(Integer stars) {
-        if (stars == null || (stars < RATING_MIN || stars > RATING_MAX)) {
+        if (stars == null) {
+            throw BusinessException.builder(ReviewErrorCode.REVIEW_RATING_IS_BLANK).build();
+        }
+        if (stars < RATING_MIN || stars > RATING_MAX) {
             throw BusinessException.builder(ReviewErrorCode.RATING_OUT_OF_RANGE).build();
         }
         return new Rating(stars);

@@ -1,6 +1,7 @@
 package com.example.lxp.review.application.port.out;
 
 import com.example.lxp.review.domain.model.Review;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +15,8 @@ public interface ReviewPersistencePort {
     void delete(Review review);
 
     List<Review> findAllByCourseId(Long courseId);
+
+    List<Review> findAllByCourseId(Long courseId, Sort sort);
 
     long countByCourseId(Long courseId);
 
