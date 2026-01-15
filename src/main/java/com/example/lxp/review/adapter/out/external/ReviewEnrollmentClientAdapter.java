@@ -1,21 +1,22 @@
 package com.example.lxp.review.adapter.out.external;
 
-import com.example.lxp.review.adapter.out.external.dto.ReviewEnrollmentCheckResponse;
-import com.example.lxp.review.application.port.out.EnrollmentClientPort;
+import com.example.lxp.common.external.enrollment.EnrollmentApiClient;
+import com.example.lxp.common.external.enrollment.dto.EnrollmentCheckResponse;
+import com.example.lxp.review.application.port.out.ReviewEnrollmentClientPort;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ReviewEnrollmentClientAdapter implements EnrollmentClientPort {
+public class ReviewEnrollmentClientAdapter implements ReviewEnrollmentClientPort {
 
-    private final ReviewEnrollmentClient enrollmentClient;
+    private final EnrollmentApiClient enrollmentApiClient;
 
-    public ReviewEnrollmentClientAdapter(ReviewEnrollmentClient enrollmentClient) {
-        this.enrollmentClient = enrollmentClient;
+    public ReviewEnrollmentClientAdapter(EnrollmentApiClient enrollmentApiClient) {
+        this.enrollmentApiClient = enrollmentApiClient;
     }
 
     @Override
     public boolean isEnrolled(Long courseId, Long userId) {
-        ReviewEnrollmentCheckResponse response = enrollmentClient.isEnrolled(courseId, userId);
+        EnrollmentCheckResponse response = enrollmentApiClient.isEnrolled(courseId, userId);
         return response != null && Boolean.TRUE.equals(response.isEnrolled());
     }
 

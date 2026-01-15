@@ -28,6 +28,7 @@ public record MessagingProps(
 
     public record QueueConfig(
             String name,
+            String exchange,
             List<String> bindings
     ) {
     }

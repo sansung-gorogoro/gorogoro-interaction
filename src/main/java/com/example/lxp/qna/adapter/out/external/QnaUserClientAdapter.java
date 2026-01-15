@@ -1,8 +1,8 @@
-package com.example.lxp.review.adapter.out.external;
+package com.example.lxp.qna.adapter.out.external;
 
 import com.example.lxp.common.external.user.UserApiClient;
 import com.example.lxp.common.external.user.dto.UserNicknamesResponse;
-import com.example.lxp.review.application.port.out.ReviewUserClientPort;
+import com.example.lxp.qna.application.port.out.QnaUserClientPort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -15,13 +15,13 @@ import java.util.Set;
 
 @Slf4j
 @Component
-public class ReviewUserClientAdapter implements ReviewUserClientPort {
+public class QnaUserClientAdapter implements QnaUserClientPort {
 
     private static final String UNKNOWN_NICKNAME = "알 수 없음";
 
     private final UserApiClient userApiClient;
 
-    public ReviewUserClientAdapter(UserApiClient userApiClient) {
+    public QnaUserClientAdapter(UserApiClient userApiClient) {
         this.userApiClient = userApiClient;
     }
 

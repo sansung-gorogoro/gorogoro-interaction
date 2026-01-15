@@ -1,6 +1,6 @@
 package com.example.lxp.review.application.port.out;
 
-public interface EnrollmentClientPort {
+public interface ReviewEnrollmentClientPort {
 
     boolean isEnrolled(Long courseId, Long userId);
 

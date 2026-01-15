@@ -10,7 +10,7 @@ import com.example.lxp.qna.application.port.in.dto.CreateQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.DeleteQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.UpdateQuestionCommand;
 import com.example.lxp.qna.application.port.out.CourseClientPort;
-import com.example.lxp.qna.application.port.out.EnrollmentClientPort;
+import com.example.lxp.qna.application.port.out.QnaEnrollmentClientPort;
 import com.example.lxp.qna.application.port.out.QnaPersistencePort;
 import com.example.lxp.qna.domain.event.QuestionCreatedEvent;
 import com.example.lxp.qna.domain.model.Question;
@@ -27,13 +27,13 @@ public class QnaCommandService implements QuestionCommandUseCase {
     private final QnaPersistencePort qnaPersistencePort;
     private final EventPublisherPort publishEventPort;
     private final CourseClientPort courseClientPort;
-    private final EnrollmentClientPort enrollmentClientPort;
+    private final QnaEnrollmentClientPort enrollmentClientPort;
 
     public QnaCommandService(
             QnaPersistencePort qnaPersistencePort,
             EventPublisherPort publishEventPort,
             CourseClientPort courseClientPort,
-            EnrollmentClientPort enrollmentClientPort
+            QnaEnrollmentClientPort enrollmentClientPort
     ) {
         this.qnaPersistencePort = qnaPersistencePort;
         this.publishEventPort = publishEventPort;

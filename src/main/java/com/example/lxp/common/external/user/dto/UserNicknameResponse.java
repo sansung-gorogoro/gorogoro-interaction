@@ -1,4 +1,4 @@
-package com.example.lxp.review.adapter.out.external.dto;
+package com.example.lxp.common.external.user.dto;
 
 public record UserNicknameResponse(
         Long userId,

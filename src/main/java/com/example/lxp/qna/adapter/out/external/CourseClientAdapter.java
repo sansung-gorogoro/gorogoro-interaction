@@ -1,8 +1,9 @@
 package com.example.lxp.qna.adapter.out.external;
 
+import com.example.lxp.common.external.course.CourseApiClient;
+import com.example.lxp.common.external.course.dto.CourseInstructorCheckResponse;
 import com.example.lxp.exception.BusinessException;
 import com.example.lxp.exception.ExternalServiceErrorCode;
-import com.example.lxp.qna.adapter.out.external.dto.CourseInstructorCheckResponse;
 import com.example.lxp.qna.application.port.out.CourseClientPort;
 import feign.FeignException;
 import feign.RetryableException;
@@ -15,9 +16,9 @@ public class CourseClientAdapter implements CourseClientPort {
 
     private static final Logger log = LoggerFactory.getLogger(CourseClientAdapter.class);
 
-    private final CourseClient courseClient;
+    private final CourseApiClient courseClient;
 
-    public CourseClientAdapter(CourseClient courseClient) {
+    public CourseClientAdapter(CourseApiClient courseClient) {
         this.courseClient = courseClient;
     }
 
