@@ -1,6 +1,6 @@
 package com.example.lxp.qna.application.port.out;
 
-public interface EnrollmentClientPort {
+public interface QnaEnrollmentClientPort {
 
     boolean isEnrolled(Long courseId, Long userId);
 
