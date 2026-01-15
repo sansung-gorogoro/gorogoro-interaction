@@ -13,6 +13,7 @@ import com.example.lxp.qna.application.port.in.QuestionQueryUseCase;
 import com.example.lxp.qna.application.port.in.dto.GetLessonQuestionsQuery;
 import com.example.lxp.qna.application.port.in.dto.GetQnaThreadQuery;
 import com.example.lxp.qna.application.port.in.dto.GetUnansweredQuestionsQuery;
+import com.example.lxp.qna.application.port.out.QnaUserClientPort;
 import com.example.lxp.qna.application.port.out.QnaPersistencePort;
 import com.example.lxp.qna.domain.model.Question;
 import com.example.lxp.qna.exception.QnaErrorCode;
@@ -22,19 +23,28 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 public class QnaQueryService implements QuestionQueryUseCase {
 
     private static final int DEFAULT_UNANSWERED_QUESTIONS_QUERY_SIZE = 3;
+    private static final String UNKNOWN_NICKNAME = "알 수 없음";
 
     private final QnaPersistencePort qnaPersistencePort;
+    private final QnaUserClientPort userClientPort;
 
-    public QnaQueryService(QnaPersistencePort qnaPersistencePort) {
+    public QnaQueryService(
+            QnaPersistencePort qnaPersistencePort,
+            QnaUserClientPort userClientPort
+    ) {
         this.qnaPersistencePort = qnaPersistencePort;
+        this.userClientPort = userClientPort;
     }
 
     @Override
@@ -46,7 +56,8 @@ public class QnaQueryService implements QuestionQueryUseCase {
                 query.limit() == null ? DEFAULT_UNANSWERED_QUESTIONS_QUERY_SIZE : Math.min(query.limit(), 10)
         );
 
-        return UnansweredQuestionsResponse.from(questions);
+        Map<Long, String> nicknameMap = loadNicknames(questions);
+        return UnansweredQuestionsResponse.from(questions, nicknameMap, UNKNOWN_NICKNAME);
     }
 
     @Override
@@ -61,13 +72,15 @@ public class QnaQueryService implements QuestionQueryUseCase {
                 pageRequest
         );
 
-        List<Long> rootIds = questionPage.getContent().stream()
+        List<Question> roots = questionPage.getContent();
+        List<Long> rootIds = roots.stream()
                 .map(Question::getId)
                 .toList();
 
         Map<Long, Long> replyCounts = qnaPersistencePort.countRepliesByRootIds(rootIds);
 
-        return LessonQuestionsResponse.from(questionPage, replyCounts);
+        Map<Long, String> nicknameMap = loadNicknames(roots);
+        return LessonQuestionsResponse.from(questionPage, replyCounts, nicknameMap, UNKNOWN_NICKNAME);
     }
 
     @Override
@@ -83,8 +96,13 @@ public class QnaQueryService implements QuestionQueryUseCase {
 
         Map<Long, Long> replyCounts = qnaPersistencePort.countRepliesByRootIds(rootIds);
 
+        Map<Long, String> nicknameMap = loadNicknames(roots);
         List<LessonQuestionItem> items = roots.stream()
-                .map(q -> LessonQuestionItem.from(q, replyCounts.getOrDefault(q.getId(), 0L)))
+                .map(q -> LessonQuestionItem.from(
+                        q,
+                        replyCounts.getOrDefault(q.getId(), 0L),
+                        nicknameMap.getOrDefault(q.getAuthorId(), UNKNOWN_NICKNAME)
+                ))
                 .toList();
 
         return LessonQuestionsAllResponse.of(items);
@@ -106,8 +124,12 @@ public class QnaQueryService implements QuestionQueryUseCase {
             throw BusinessException.builder(QnaErrorCode.QUESTION_NOT_FOUND).build();
         }
 
+        Map<Long, String> nicknameMap = loadNicknames(questions);
         List<QuestionThreadItemResponse> items = questions.stream()
-                .map(QuestionThreadItemResponse::from)
+                .map(q -> QuestionThreadItemResponse.from(
+                        q,
+                        nicknameMap.getOrDefault(q.getAuthorId(), UNKNOWN_NICKNAME)
+                ))
                 .toList();
 
         return QuestionThreadResponse.of(root, items);
@@ -117,6 +139,22 @@ public class QnaQueryService implements QuestionQueryUseCase {
         if (user.getRole() != Role.INSTRUCTOR) {
             throw BusinessException.builder(QnaErrorCode.FORBIDDEN_INSTRUCTOR_ONLY).build();
         }
+    }
+
+    private Map<Long, String> loadNicknames(List<Question> questions) {
+        if (questions == null || questions.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Set<Long> authorIds = questions.stream()
+                .map(Question::getAuthorId)
+                .collect(Collectors.toSet());
+
+        if (authorIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        return userClientPort.getNicknames(authorIds);
     }
 
 }
