@@ -1,4 +1,4 @@
-package com.example.lxp.qna.adapter.out.external.dto;
+package com.example.lxp.common.external.course.dto;
 
 public record CourseInstructorCheckResponse(
         Long instructorId
