@@ -20,6 +20,7 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,19 +82,18 @@ public class RabbitConfig {
     @Bean
     public Declarables topology(MessagingProps properties) {
         List<Declarable> declarables = new ArrayList<>();
+        Map<String, TopicExchange> exchanges = new HashMap<>();
 
         // Shared DLX/DLQ
         TopicExchange dlx = ExchangeBuilder.topicExchange(properties.shared().dlx()).durable(true).build();
-        Queue dlq = QueueBuilder.durable(properties.shared().dlq()).build();
         declarables.add(dlx);
-        declarables.add(dlq);
-        declarables.add(BindingBuilder.bind(dlq).to(dlx).with("#"));
 
         // Service-specific exchanges/queues/bindings
         for (MessagingProps.Service service : properties.services().values()) {
             // Create service exchange
             TopicExchange exchange = ExchangeBuilder.topicExchange(service.exchange()).durable(true).build();
             declarables.add(exchange);
+            exchanges.put(service.exchange(), exchange);
 
             // Create queues for this service
             for (Map.Entry<String, MessagingProps.QueueConfig> queueEntry : service.queues().entrySet()) {
@@ -101,14 +101,31 @@ public class RabbitConfig {
 
                 // Create queue with DLX configuration
                 Map<String, Object> queueArgs = new HashMap<>();
+                String dlqName = queueConfig.name() + ".dlq";
                 queueArgs.put("x-dead-letter-exchange", properties.shared().dlx());
+                queueArgs.put("x-dead-letter-routing-key", dlqName);
                 Queue queue = QueueBuilder.durable(queueConfig.name()).withArguments(queueArgs).build();
                 declarables.add(queue);
 
+                Queue dlq = QueueBuilder.durable(dlqName).build();
+                declarables.add(dlq);
+                declarables.add(BindingBuilder.bind(dlq).to(dlx).with(dlqName));
+
                 // Create bindings for this queue
-                for (String routingKey : queueConfig.bindings()) {
-                    Binding binding = BindingBuilder.bind(queue).to(exchange).with(routingKey);
-                    declarables.add(binding);
+                String exchangeName = StringUtils.hasText(queueConfig.exchange())
+                        ? queueConfig.exchange()
+                        : service.exchange();
+                TopicExchange bindingExchange = exchanges.get(exchangeName);
+                if (bindingExchange == null) {
+                    bindingExchange = ExchangeBuilder.topicExchange(exchangeName).durable(true).build();
+                    exchanges.put(exchangeName, bindingExchange);
+                    declarables.add(bindingExchange);
+                }
+                if (queueConfig.bindings() != null) {
+                    for (String routingKey : queueConfig.bindings()) {
+                        Binding binding = BindingBuilder.bind(queue).to(bindingExchange).with(routingKey);
+                        declarables.add(binding);
+                    }
                 }
             }
         }
