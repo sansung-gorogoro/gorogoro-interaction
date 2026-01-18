@@ -1,7 +1,6 @@
 package com.example.lxp.qna.adapter.out.external;
 
 import com.example.lxp.common.external.enrollment.EnrollmentApiClient;
-import com.example.lxp.common.external.enrollment.dto.EnrollmentCheckResponse;
 import com.example.lxp.qna.application.port.out.QnaEnrollmentClientPort;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +15,10 @@ public class QnaEnrollmentClientAdapter implements QnaEnrollmentClientPort {
 
     @Override
     public boolean isEnrolled(Long courseId, Long userId) {
-        EnrollmentCheckResponse response = enrollmentApiClient.isEnrolled(courseId, userId);
-        return response != null && Boolean.TRUE.equals(response.isEnrolled());
+//        EnrollmentCheckResponse response = enrollmentApiClient.isEnrolled(courseId, userId);
+//        boolean response = enrollmentApiClient.isEnrolled(courseId, userId);
+//        return response != null && Boolean.TRUE.equals(response.isEnrolled());
+        return enrollmentApiClient.isEnrolled(courseId, userId);
     }
 
 }
