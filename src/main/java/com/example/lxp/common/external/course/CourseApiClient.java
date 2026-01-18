@@ -1,6 +1,5 @@
 package com.example.lxp.common.external.course;
 
-import com.example.lxp.common.external.course.dto.CourseInstructorCheckResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,7 +10,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 )
 public interface CourseApiClient {
 
-    @GetMapping("/api/courses/{courseId}/instructor")
-    CourseInstructorCheckResponse getInstructorId(@PathVariable Long courseId);
+    // 원래 코드
+//    @GetMapping("/api/internal/courses/{courseId}/instructor")
+//    CourseInstructorCheckResponse getInstructorId(@PathVariable Long courseId);
+
+    // Course 도메인쪽 구현 문제로 임시 사용
+    @GetMapping("/api/internal/courses/{courseId}")
+    Long getInstructorId(@PathVariable Long courseId);
 
 }

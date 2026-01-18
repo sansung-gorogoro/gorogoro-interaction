@@ -1,6 +1,5 @@
 package com.example.lxp.qna.application.service;
 
-import com.example.lxp.common.auth.model.Role;
 import com.example.lxp.common.auth.model.User;
 import com.example.lxp.common.messaging.port.out.EventPublisherPort;
 import com.example.lxp.exception.BusinessException;
@@ -9,7 +8,7 @@ import com.example.lxp.qna.application.port.in.dto.CreateQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.DeleteQuestionCommand;
 import com.example.lxp.qna.application.port.in.dto.UpdateQuestionCommand;
 import com.example.lxp.qna.application.port.out.CourseClientPort;
-import com.example.lxp.qna.application.port.out.EnrollmentClientPort;
+import com.example.lxp.qna.application.port.out.QnaEnrollmentClientPort;
 import com.example.lxp.qna.application.port.out.QnaPersistencePort;
 import com.example.lxp.qna.domain.event.QuestionCreatedEvent;
 import com.example.lxp.qna.domain.model.Question;
@@ -50,7 +49,7 @@ class QnaCommandServiceTest {
     private CourseClientPort courseClientPort;
 
     @Mock
-    private EnrollmentClientPort enrollmentClientPort;
+    private QnaEnrollmentClientPort enrollmentClientPort;
 
     @InjectMocks
     private QnaCommandService commandService;

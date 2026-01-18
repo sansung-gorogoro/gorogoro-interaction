@@ -8,6 +8,7 @@ import com.example.lxp.qna.adapter.in.web.dto.UnansweredQuestionsResponse;
 import com.example.lxp.qna.application.port.in.dto.GetQnaThreadQuery;
 import com.example.lxp.qna.application.port.in.dto.GetUnansweredQuestionsQuery;
 import com.example.lxp.qna.application.port.out.QnaPersistencePort;
+import com.example.lxp.qna.application.port.out.QnaUserClientPort;
 import com.example.lxp.qna.domain.model.Question;
 import com.example.lxp.qna.exception.QnaErrorCode;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +32,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,6 +43,9 @@ class QnaQueryServiceTest {
 
     @Mock
     private QnaPersistencePort qnaPersistencePort;
+
+    @Mock
+    private QnaUserClientPort userClientPort;
 
     @InjectMocks
     private QnaQueryService queryService;
@@ -60,6 +66,8 @@ class QnaQueryServiceTest {
     void setUp() {
         instructorUser = User.from(INSTRUCTOR_ID, "INSTRUCTOR");
         studentUser = User.from(AUTHOR_ID, "STUDENT");
+
+        lenient().when(userClientPort.getNicknames(anySet())).thenReturn(Collections.emptyMap());
     }
 
     @Nested
